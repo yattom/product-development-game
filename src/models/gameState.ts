@@ -355,6 +355,22 @@ export class GameState {
   }
 
   /**
+   * 勝利条件を設定する
+   * @param conditions 設定する勝利条件の配列
+   */
+  setVictoryConditions(conditions: VictoryCondition[]): void {
+    this._victoryConditions = [...conditions];
+  }
+
+  /**
+   * 敗北条件を設定する
+   * @param conditions 設定する敗北条件の配列
+   */
+  setDefeatConditions(conditions: DefeatCondition[]): void {
+    this._defeatConditions = [...conditions];
+  }
+
+  /**
    * ゲーム状態のクローンを作成する
    * 主にテスト用
    */
