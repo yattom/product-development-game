@@ -31,6 +31,29 @@ function createTestPlayer(handCard: Card) {
     });
 }
 
+function createTestGameState(overrides = {}) {
+    return new GameState({
+        players: [createTestPlayer(createTestCard())],
+        currentPlayerIndex: 0,
+        deck: [],
+        workplaces: {},
+        completionLane: [],
+        chaosLevel: 0,
+        resources: 2,
+        activeRuleSet: {
+            id: `test-ruleset-${getNextId('ruleSet')}`,
+            name: 'テストルールセット',
+            description: 'テスト用のルールセット',
+            rules: []
+        },
+        victoryConditions: [],
+        defeatConditions: [],
+        ...overrides
+    });
+
+
+}
+
 describe('Models and Rules Interaction', () => {
     it('手札を置き場において元々あったカードを1枚レーンに動かす', () => {
         // カードを作成
@@ -42,24 +65,11 @@ describe('Models and Rules Interaction', () => {
         const player = createTestPlayer(handCard);
 
         // ゲーム状態を作成
-        const gameState = new GameState({
+        const gameState = createTestGameState({
             players: [player],
-            currentPlayerIndex: 0,
-            deck: [],
             workplaces: {
                 [Category.Technology]: workplaceCard
             },
-            completionLane: [],
-            chaosLevel: 0,
-            resources: 2,
-            activeRuleSet: {
-                id: `test-ruleset-${getNextId('ruleSet')}`,
-                name: 'テストルールセット',
-                description: 'テスト用のルールセット',
-                rules: []
-            },
-            victoryConditions: [],
-            defeatConditions: []
         });
 
         // PlaceCardRuleを作成
@@ -135,22 +145,8 @@ describe('Models and Rules Interaction', () => {
         });
 
         // ゲーム状態を作成
-        const gameState = new GameState({
+        const gameState = createTestGameState({
             players: [player],
-            currentPlayerIndex: 0,
-            deck: [],
-            workplaces: {},
-            completionLane: [],
-            chaosLevel: 0,
-            resources: 2,
-            activeRuleSet: {
-                id: `test-ruleset-${getNextId('ruleSet')}`,
-                name: 'テストルールセット',
-                description: 'テスト用のルールセット',
-                rules: []
-            },
-            victoryConditions: [],
-            defeatConditions: []
         });
 
         // PlayCardRuleを作成
