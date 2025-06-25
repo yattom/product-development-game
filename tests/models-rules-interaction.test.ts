@@ -9,8 +9,8 @@ function getNextId(type: string): number {
     return ++idCounter;
 }
 
-function createTestCard(id: (string | number) = '', overrides = {}) {
-    const uniqueId = id || getNextId('card');
+function createTestCard(overrides = {}) {
+    const uniqueId = getNextId('card');
     return new Card({
         id: `test-card-${uniqueId}`,
         name: `テストカード-${uniqueId}`,
@@ -34,9 +34,9 @@ function createTestPlayer(handCard: Card) {
 describe('Models and Rules Interaction', () => {
     it('手札を置き場において元々あったカードを1枚レーンに動かす', () => {
         // カードを作成
-        const handCard = createTestCard(1, {});
+        const handCard = createTestCard({});
 
-        const workplaceCard = createTestCard(2, {
+        const workplaceCard = createTestCard({
             situationEffect: 2
         });
         const player = createTestPlayer(handCard);
