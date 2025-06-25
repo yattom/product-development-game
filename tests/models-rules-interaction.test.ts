@@ -1,37 +1,45 @@
 // Jest functions are globally available
-import {Card} from '../src/models/card';
-import {GameState} from '../src/models/gameState';
-import {Player} from '../src/models/player';
-import {VictoryCondition} from '../src/models/victoryCondition';
-import {DefeatCondition} from '../src/models/defeatCondition';
-import {Category, ActionType, RuleType, GameEventType} from '../src/rules/interfaces';
+import {ActionType, Card, Category, GameEventType, GameState, Player, RuleType} from '../src';
 import {PlaceCardRule, PlayCardRule} from '../src/rules/standard/actions';
+
+// Single ID sequence counter for all types
+let idCounter = 0;
+
+function getNextId(type: string): number {
+    return ++idCounter;
+}
+
+function createTestCard(id: (string | number) = '', overrides = {}) {
+    const uniqueId = id || getNextId('card');
+    return new Card({
+        id: `test-card-${uniqueId}`,
+        name: `テストカード-${uniqueId}`,
+        description: `テスト用のカード-${uniqueId}`,
+        categories: [Category.Technology],
+        situationEffect: 1,
+        ...overrides
+    });
+}
+
+function createTestPlayer(handCard: Card) {
+    // プレイヤーを作成
+    const uniqueId = getNextId('player');
+    return new Player({
+        id: `test-player-${uniqueId}`,
+        name: `テストプレイヤー-${uniqueId}`,
+        hand: [handCard]
+    });
+}
 
 describe('Models and Rules Interaction', () => {
     it('手札を置き場において元々あったカードを1枚レーンに動かす', () => {
         // カードを作成
-        const handCard = new Card({
-            id: 'test-card-1',
-            name: 'テストカード1',
-            description: 'テスト用のカード',
-            categories: [Category.Technology],
-            situationEffect: 1
-        });
+        const handCard = createTestCard(1, {});
 
-        const workplaceCard = new Card({
-            id: 'test-card-2',
-            name: 'テストカード2',
-            description: 'テスト用のカード（職場に配置）',
-            categories: [Category.Technology],
+        const workplaceCard = createTestCard(2, {
             situationEffect: 2
         });
-
-        // プレイヤーを作成
-        const player = new Player({
-            id: 'test-player',
-            name: 'テストプレイヤー',
-            hand: [handCard]
-        });
+        const player = createTestPlayer(handCard);
 
         // ゲーム状態を作成
         const gameState = new GameState({
@@ -45,7 +53,7 @@ describe('Models and Rules Interaction', () => {
             chaosLevel: 0,
             resources: 2,
             activeRuleSet: {
-                id: 'test-ruleset',
+                id: `test-ruleset-${getNextId('ruleSet')}`,
                 name: 'テストルールセット',
                 description: 'テスト用のルールセット',
                 rules: []
@@ -87,9 +95,12 @@ describe('Models and Rules Interaction', () => {
         expect(gameState.completionLane[0].id).toBe(workplaceCard.id);
     });
     it('手札からカードをプレイしてその効果を適用する', () => {
+        // モックのルールIDを生成
+        const mockRuleId = `mock-effect-rule-${getNextId('rule')}`;
+
         // モックのルールを作成
         const mockEffectRule = {
-            id: 'mock-effect-rule',
+            id: mockRuleId,
             name: 'モック効果ルール',
             description: 'テスト用のモック効果ルール',
             type: RuleType.CardEffect,
@@ -104,13 +115,13 @@ describe('Models and Rules Interaction', () => {
 
         // プレイ効果を持つカードを作成
         const handCard = new Card({
-            id: 'test-card-1',
+            id: `test-card-${getNextId('card')}`,
             name: 'テストカード1',
             description: 'テスト用のカード',
             categories: [Category.Technology],
             situationEffect: 1,
             playEffect: {
-                ruleId: 'mock-effect-rule',
+                ruleId: mockRuleId,
                 params: {amount: 2},
                 description: 'リソースを2増やす'
             }
@@ -133,7 +144,7 @@ describe('Models and Rules Interaction', () => {
             chaosLevel: 0,
             resources: 2,
             activeRuleSet: {
-                id: 'test-ruleset',
+                id: `test-ruleset-${getNextId('ruleSet')}`,
                 name: 'テストルールセット',
                 description: 'テスト用のルールセット',
                 rules: []
@@ -172,7 +183,7 @@ describe('Models and Rules Interaction', () => {
         expect(gameState.eventHistory[0].type).toBe(GameEventType.CardPlayed);
 
         // 3. 効果ルールが呼び出されていること
-        expect(mockRuleRegistry.getRule).toHaveBeenCalledWith('mock-effect-rule');
+        expect(mockRuleRegistry.getRule).toHaveBeenCalledWith(mockRuleId);
         expect(mockEffectRule.apply).toHaveBeenCalled();
         expect(mockEffectRule.apply.mock.calls[0][0].metadata.effectParams).toEqual({amount: 2});
 
