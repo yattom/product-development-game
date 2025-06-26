@@ -5,12 +5,12 @@ import {PlaceCardRule, PlayCardRule} from '../src/rules/standard/actions';
 // Single ID sequence counter for all types
 let idCounter = 0;
 
-function getNextId(type: string): number {
+function getNextId(): number {
     return ++idCounter;
 }
 
 function createTestCard(overrides = {}) {
-    const uniqueId = getNextId('card');
+    const uniqueId = getNextId();
     return new Card({
         id: `test-card-${uniqueId}`,
         name: `テストカード-${uniqueId}`,
@@ -23,7 +23,7 @@ function createTestCard(overrides = {}) {
 
 function createTestPlayer(handCard: Card) {
     // プレイヤーを作成
-    const uniqueId = getNextId('player');
+    const uniqueId = getNextId();
     return new Player({
         id: `test-player-${uniqueId}`,
         name: `テストプレイヤー-${uniqueId}`,
@@ -41,7 +41,7 @@ function createTestGameState(overrides = {}) {
         chaosLevel: 0,
         resources: 2,
         activeRuleSet: {
-            id: `test-ruleset-${getNextId('ruleSet')}`,
+            id: `test-ruleset-${getNextId()}`,
             name: 'テストルールセット',
             description: 'テスト用のルールセット',
             rules: []
@@ -106,7 +106,7 @@ describe('Models and Rules Interaction', () => {
     });
     it('手札からカードをプレイしてその効果を適用する', () => {
         // モックのルールIDを生成
-        const mockRuleId = `mock-effect-rule-${getNextId('rule')}`;
+        const mockRuleId = `mock-effect-rule-${getNextId()}`;
 
         // モックのルールを作成
         const mockEffectRule = {
@@ -125,7 +125,7 @@ describe('Models and Rules Interaction', () => {
 
         // プレイ効果を持つカードを作成
         const handCard = new Card({
-            id: `test-card-${getNextId('card')}`,
+            id: `test-card-${getNextId()}`,
             name: 'テストカード1',
             description: 'テスト用のカード',
             categories: [Category.Technology],
