@@ -31,11 +31,8 @@ export class PlayCardRule implements GameRule {
     const cardId = currentAction.payload.cardId as string;
     
     // プレイヤーの手札からカードを削除
-    const removedCard = currentPlayer.removeCardFromHand(cardId);
-    if (!removedCard) {
-      throw new Error(`Card with id ${cardId} not found in player's hand`);
-    }
-    
+    currentPlayer.removeCardFromHand(cardId);
+
     // カードプレイイベントを記録
     state.addEvent({
       type: GameEventType.CardPlayed,
@@ -103,10 +100,7 @@ export class PlaceCardRule implements GameRule {
 
     // プレイヤーの手札からカードを削除
     const removedCard = currentPlayer.removeCardFromHand(cardId);
-    if (!removedCard) {
-      throw new Error(`Card with id ${cardId} not found in player's hand`);
-    }
-    
+
     // カードを仕事場に配置し、元々あったカードを取得
     const previousCard = state.placeCardInWorkplace(removedCard, category);
     
@@ -264,11 +258,8 @@ export class DiscardCardRule implements GameRule {
     const cardId = currentAction.payload.cardId as string;
     
     // プレイヤーの手札からカードを削除
-    const removedCard = currentPlayer.removeCardFromHand(cardId);
-    if (!removedCard) {
-      throw new Error(`Card with id ${cardId} not found in player's hand`);
-    }
-    
+    currentPlayer.removeCardFromHand(cardId);
+
     // カードを捨て札に加える
     state.discardCards([currentCard]);
     

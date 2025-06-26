@@ -1,4 +1,4 @@
-import { Card } from './card';
+import {Card} from './card';
 
 /**
  * プレイヤークラス
@@ -59,10 +59,10 @@ export class Player {
    * @param cardId 削除するカードのID
    * @returns 削除されたカード、見つからない場合はundefined
    */
-  removeCardFromHand(cardId: string): Card | undefined {
+  removeCardFromHand(cardId: string): Card {
     const index = this._hand.findIndex(card => card.id === cardId);
     if (index === -1) {
-      return undefined;
+      throw new Error(`Card with id ${cardId} not found in player's hand`);
     }
     return this._hand.splice(index, 1)[0];
   }
