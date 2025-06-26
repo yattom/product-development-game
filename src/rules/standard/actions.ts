@@ -1,4 +1,4 @@
-import { ActionType, Category, GameContext, GameEventType, GameRule, RuleType } from '../interfaces';
+import {ActionType, Category, GameContext, GameEventType, GameRule, RuleType} from '../interfaces';
 
 /**
  * カードプレイルール
@@ -99,18 +99,8 @@ export class PlaceCardRule implements GameRule {
    * @param context ゲームコンテキスト
    */
   apply(context: GameContext): void {
-    const { state, currentCard, currentAction } = context;
-    if (!currentCard || !currentAction) return;
+    const {state, currentAction, currentPlayer, cardId, category} = this.validateInput(context);
 
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    const cardId = currentAction.payload.cardId as string;
-    const category = currentAction.payload.category as Category;
-    
-    // カードがカテゴリに属しているか確認
-    if (!currentCard.hasCategory(category)) {
-      throw new Error(`Card ${currentCard.id} does not have category ${category}`);
-    }
-    
     // プレイヤーの手札からカードを削除
     const removedCard = currentPlayer.removeCardFromHand(cardId);
     if (!removedCard) {
@@ -118,10 +108,10 @@ export class PlaceCardRule implements GameRule {
     }
     
     // カードを仕事場に配置し、元々あったカードを取得
-    const previousCard = state.placeCardInWorkplace(currentCard, category);
+    const previousCard = state.placeCardInWorkplace(removedCard, category);
     
     // リソースの増減処理
-    const resourceChange = currentCard.situationEffect;
+    const resourceChange = removedCard.situationEffect;
     const actualChange = state.modifyResources(resourceChange);
     
     // リソース変更イベントを記録
@@ -133,7 +123,7 @@ export class PlaceCardRule implements GameRule {
           oldValue: state.resources - actualChange,
           newValue: state.resources,
           change: actualChange,
-          reason: `カード配置: ${currentCard.name}`
+          reason: `カード配置: ${removedCard.name}`
         }
       });
     }
@@ -146,8 +136,8 @@ export class PlaceCardRule implements GameRule {
         playerId: currentPlayer.id,
         playerName: currentPlayer.name,
         playerIndex: state.currentPlayerIndex,
-        cardId: currentCard.id,
-        cardName: currentCard.name,
+        cardId: removedCard.id,
+        cardName: removedCard.name,
         category: category,
         previousCardId: previousCard?.id,
         previousCardName: previousCard?.name
@@ -223,6 +213,23 @@ export class PlaceCardRule implements GameRule {
         }
       }
     }
+  }
+
+  private validateInput(context: GameContext) {
+    const {state, currentCard, currentAction} = context;
+    // currentCardは指定してはならない。currentAction.cardIdのカードを配置する
+    if (currentCard) {
+      throw new Error('currentCard must not be specified for PlaceCard action');
+    }
+
+    if (!currentAction) {
+      throw new Error('currentAction must be specified for PlaceCard action');
+    }
+
+    const currentPlayer = state.players[state.currentPlayerIndex];
+    const cardId = currentAction.payload.cardId as string;
+    const category = currentAction.payload.category as Category;
+    return {state, currentAction, currentPlayer, cardId, category};
   }
 }
 

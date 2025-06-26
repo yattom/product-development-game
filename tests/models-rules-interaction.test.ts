@@ -88,7 +88,6 @@ describe('Models and Rules Interaction', () => {
         // ルールを適用
         placeCardRule.apply({
             state: gameState,
-            currentCard: handCard,
             currentAction: action,
             metadata: {}
         });
