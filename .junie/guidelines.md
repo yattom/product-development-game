@@ -1,1 +1,3 @@
-refer docs/guidelines.md as global guideline
+# important direction
+
+Read docs/guidelines.md carefully as global guideline and always follow as described.
