@@ -253,37 +253,7 @@ class GameEngine {
    - アクション実行
    - ゲーム終了条件
 
-## 6. ディレクトリ構造
 
-```
-src/
-├── core/
-│   ├── engine.ts       // ゲームエンジン
-│   ├── state.ts        // 状態管理
-│   ├── events.ts       // イベントシステム
-│   └── actions.ts      // アクション定義
-├── rules/
-│   ├── interfaces.ts   // ルールインターフェース
-│   ├── registry.ts     // ルール登録機構
-│   ├── standard/       // 標準ルールセット
-│   │   ├── setup.ts
-│   │   ├── turnFlow.ts
-│   │   ├── actions.ts
-│   │   ├── resources.ts
-│   │   ├── chaos.ts
-│   │   └── victory.ts
-│   └── variants/       // バリアントルール
-├── models/
-│   ├── card.ts
-│   ├── player.ts
-│   └── ruleSet.ts
-├── effects/
-│   └── cardEffects.ts  // カード効果実装
-├── utils/
-│   ├── random.ts
-│   └── serialization.ts
-└── index.ts            // エントリーポイント
-```
 
 ## 7. テスト戦略
 

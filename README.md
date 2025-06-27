@@ -19,22 +19,32 @@
 
 ```
 src/
-├── core/           # ゲームエンジンと状態管理
-│   ├── engine.ts   # ゲームエンジン
-│   └── factory.ts  # ゲーム状態ファクトリ
-├── rules/          # ゲームルールの定義
-│   ├── interfaces.ts  # ルールインターフェース
-│   ├── registry.ts    # ルール登録機構
-│   └── standard/      # 標準ルールセット
-├── models/         # データモデル
+├── core/
+│   ├── engine.ts       // ゲームエンジン
+│   ├── state.ts        // 状態管理
+│   ├── events.ts       // イベントシステム
+│   └── actions.ts      // アクション定義
+├── rules/
+│   ├── interfaces.ts   // ルールインターフェース
+│   ├── registry.ts     // ルール登録機構
+│   ├── standard/       // 標準ルールセット
+│   │   ├── setup.ts
+│   │   ├── turnFlow.ts
+│   │   ├── actions.ts
+│   │   ├── resources.ts
+│   │   ├── chaos.ts
+│   │   └── victory.ts
+│   └── variants/       // バリアントルール
+├── models/
 │   ├── card.ts
 │   ├── player.ts
-│   ├── gameState.ts
-│   ├── victoryCondition.ts
-│   └── defeatCondition.ts
-├── effects/        # カード効果の実装
-│   └── playEffects.ts
-└── utils/          # ユーティリティ関数
+│   └── ruleSet.ts
+├── effects/
+│   └── cardEffects.ts  // カード効果実装
+├── utils/
+│   ├── random.ts
+│   └── serialization.ts
+└── index.ts            // エントリーポイント
 ```
 
 ## 次のステップ
