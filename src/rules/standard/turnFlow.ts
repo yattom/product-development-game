@@ -1,5 +1,5 @@
-import { ActionType, GameContext, GameEventType, GameRule, RuleType } from '../interfaces';
-import { GameState } from '../../models/gameState';
+import {ActionType, GameContext, GameEventType, GameRule, RuleType} from '../interfaces';
+import {GameState} from '../../models/gameState';
 
 /**
  * 標準のターン開始ルール
@@ -82,7 +82,7 @@ export class StandardTurnEndRule implements GameRule {
     });
 
     // 次のプレイヤーに順番を移す
-    const nextPlayerIndex = state.moveToNextPlayer();
+    const nextPlayerIndex = state.moveToNextPlayer(); // TODO: イミュータブル版に置き換え
 
     // 全プレイヤーが1巡したかチェック（最初のプレイヤーに戻った場合）
     if (nextPlayerIndex === 0) {

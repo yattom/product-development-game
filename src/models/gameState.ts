@@ -1,12 +1,8 @@
-import { 
-  Category, 
-  GameEvent, 
-  RuleSet
-} from '../rules/interfaces';
-import { VictoryCondition } from './victoryCondition';
-import { DefeatCondition } from './defeatCondition';
-import { Card } from './card';
-import { Player } from './player';
+import {Category, GameEvent, RuleSet} from '../rules/interfaces';
+import {VictoryCondition} from './victoryCondition';
+import {DefeatCondition} from './defeatCondition';
+import {Card} from './card';
+import {Player} from './player';
 
 /**
  * ゲーム状態クラス
@@ -212,6 +208,31 @@ export class GameState {
   moveToNextPlayer(): number {
     this._currentPlayerIndex = (this._currentPlayerIndex + 1) % this._players.length;
     return this._currentPlayerIndex;
+  }
+
+  /**
+   * 次のプレイヤーに順番を移す（イミュータブル版・一時的にmoveToNextPlayerXXXという名前で追加）
+   * @returns 新しいGameStateインスタンス
+   */
+  moveToNextPlayerXXX(): GameState {
+    const nextIndex = (this._currentPlayerIndex + 1) % this._players.length;
+    return new GameState({
+      players: this._players,
+      currentPlayerIndex: nextIndex,
+      deck: this._deck,
+      discard: this._discard,
+      workplaces: this._workplaces,
+      completionLane: this._completionLane,
+      chaosLevel: this._chaosLevel,
+      resources: this._resources,
+      activeRuleSet: this._activeRuleSet,
+      victoryConditions: this._victoryConditions,
+      defeatConditions: this._defeatConditions,
+      lastChaosModifierPlayer: this._lastChaosModifierPlayer,
+      chaosNotModifiedForFullRound: this._chaosNotModifiedForFullRound,
+      eventHistory: this._eventHistory,
+      metadata: this._metadata,
+    });
   }
 
   /**
