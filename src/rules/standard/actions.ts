@@ -102,7 +102,7 @@ export class PlaceCardRule implements GameRule {
     const removedCard = currentPlayer.removeCardFromHand(cardId);
 
     // カードを仕事場に配置し、元々あったカードを取得
-    const previousCard = state.placeCardInWorkplace(removedCard, category);
+    const previousCard = state.placeCardInWorkplaceMUTING(removedCard, category);
     
     // リソースの増減処理
     const resourceChange = removedCard.situationEffect;
@@ -165,14 +165,14 @@ export class PlaceCardRule implements GameRule {
             });
             
             // カードを完成品レーンに移動
-            state.moveCardToCompletionLane(previousCard);
+            state.moveCardToCompletionLaneMUTING(previousCard);
           } else {
             // リソースが足りない場合は捨て札に
             state.discardCardsMUTING([previousCard]);
           }
         } else {
           // トラブルカードや中立カードはコストなしでレーンに移動
-          state.moveCardToCompletionLane(previousCard);
+          state.moveCardToCompletionLaneMUTING(previousCard);
         }
       } else if (pushOutOption === 'discard') {
         // 押し出し（捨てる）
@@ -199,7 +199,7 @@ export class PlaceCardRule implements GameRule {
             state.discardCardsMUTING([previousCard]);
           } else {
             // リソースが足りない場合はレーンに移動
-            state.moveCardToCompletionLane(previousCard);
+            state.moveCardToCompletionLaneMUTING(previousCard);
           }
         } else {
           // リソースカードや中立カードは捨て札に

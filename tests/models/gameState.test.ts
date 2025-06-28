@@ -1,4 +1,5 @@
-import {createTestGameState, createTestPlayer} from '../fixture/create_helper';
+import {createTestCard, createTestGameState, createTestPlayer} from '../fixture/create_helper';
+import {Category} from "../../src";
 
 describe('GameState', () => {
     describe('immutableであること', () => {
@@ -57,6 +58,43 @@ describe('GameState', () => {
                 expect(nextState).not.toBe(state);
                 expect(nextState.discard).toEqual([card1, card2]);
                 expect(state.discard).toEqual([]);
+            });
+        });
+
+        describe('moveCardToCompletionLane', () => {
+            it('指定したカードをcompletionLaneに加えた新しいGameStateを返す', () => {
+                const state = createTestGameState({
+                    completionLane: [],
+                });
+                const card = createTestPlayer().hand[0];
+                const nextState = state.moveCardToCompletionLane(card);
+                expect(nextState).not.toBe(state);
+                expect(nextState.completionLane).toEqual([card]);
+                expect(state.completionLane).toEqual([]);
+            });
+        });
+
+        describe('placeCardInWorkplace', () => {
+            it('指定したカテゴリにカードを配置し新しいGameStateを返す。元のカードも返す', () => {
+                const card1 = createTestCard()
+                const card2 = createTestCard()
+                const workplaces: Record<Category, any> = {
+                    [Category.Technology]: card1,
+                    [Category.User]: null,
+                    [Category.Management]: null
+                }
+                const state = createTestGameState({workplaces});
+                const {previousCard, state: nextState} = state.placeCardInWorkplace(card2, Category.Technology);
+                expect(previousCard).toBe(card1);
+                expect(nextState).not.toBe(state);
+                expect(nextState.workplaces[Category.Technology]).toBe(card2);
+                expect(state.workplaces[Category.Technology]).toBe(card1);
+            });
+            it('カテゴリ不一致のカードを配置しようとすると例外', () => {
+                const card = createTestPlayer().hand[0];
+                // card.categoriesに0(Category.Technology)が含まれている前提
+                const state = createTestGameState();
+                expect(() => state.placeCardInWorkplaceMUTING(card, Category.User)).toThrow();
             });
         });
     });
