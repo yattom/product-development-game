@@ -304,7 +304,7 @@ export class GameState {
    * @param category 配置するカテゴリ
    * @returns 元々あったカード（あれば）
    */
-  placeCardInWorkplace(card: Card, category: Category): Card | null {
+  placeCardInWorkplaceMUTING(card: Card, category: Category): Card | null {
     if (!card.hasCategory(category)) {
       throw new Error(`Card ${card.id} does not have category ${category}`);
     }
@@ -315,11 +315,37 @@ export class GameState {
   }
 
   /**
+   * カードを仕事場に配置する
+   * @param card 配置するカード
+   * @param category 配置するカテゴリ
+   * @returns 更新されたGameState
+   */
+  placeCardInWorkplace(card: Card, category: Category): { previousCard: Card | null, state: GameState } {
+    if (!card.hasCategory(category)) {
+      throw new Error(`Card ${card.id} does not have category ${category}`);
+    }
+
+    const previousCard = this._workplaces[category];
+    const workplaces = {...this._workplaces}
+    workplaces[category] = card;
+    return {previousCard, state: this.newState({workplaces})};
+  }
+
+  /**
    * カードを完成品レーンに移動する
    * @param card 移動するカード
    */
-  moveCardToCompletionLane(card: Card): void {
+  moveCardToCompletionLaneMUTING(card: Card): void {
     this._completionLane.push(card);
+  }
+
+  /**
+   * カードを完成品レーンに移動する（イミュータブル版）
+   * @param card 移動するカード
+   * @returns 新しいGameStateインスタンス
+   */
+  moveCardToCompletionLane(card: Card): GameState {
+    return this.newState({completionLane: [...this._completionLane, card]});
   }
 
   /**
