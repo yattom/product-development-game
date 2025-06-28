@@ -192,16 +192,6 @@ export class GameState {
   // セッター＆メソッド
 
   /**
-   * 現在のプレイヤーインデックスを設定する
-   */
-  setCurrentPlayerIndex(index: number): void {
-    if (index < 0 || index >= this._players.length) {
-      throw new Error(`Invalid player index: ${index}`);
-    }
-    this._currentPlayerIndex = index;
-  }
-
-  /**
    * 次のプレイヤーに順番を移す
    * @returns 新しい現在プレイヤーのインデックス
    */
@@ -211,14 +201,14 @@ export class GameState {
   }
 
   /**
-   * 次のプレイヤーに順番を移す（イミュータブル版・一時的にmoveToNextPlayerXXXという名前で追加）
+   * 現在のGameStateから、指定した差分だけを上書きした新しいGameStateを返す（イミュータブル）
+   * @param updates 差分となるプロパティ群
    * @returns 新しいGameStateインスタンス
    */
-  moveToNextPlayerXXX(): GameState {
-    const nextIndex = (this._currentPlayerIndex + 1) % this._players.length;
+  newState(updates: Partial<ConstructorParameters<typeof GameState>[0]>): GameState {
     return new GameState({
       players: this._players,
-      currentPlayerIndex: nextIndex,
+      currentPlayerIndex: this._currentPlayerIndex,
       deck: this._deck,
       discard: this._discard,
       workplaces: this._workplaces,
@@ -232,7 +222,17 @@ export class GameState {
       chaosNotModifiedForFullRound: this._chaosNotModifiedForFullRound,
       eventHistory: this._eventHistory,
       metadata: this._metadata,
+      ...updates,
     });
+  }
+
+  /**
+   * 次のプレイヤーに順番を移す（イミュータブル版・一時的にmoveToNextPlayerXXXという名前で追加）
+   * @returns 新しいGameStateインスタンス
+   */
+  moveToNextPlayerXXX(): GameState {
+    const nextIndex = (this._currentPlayerIndex + 1) % this._players.length;
+    return this.newState({currentPlayerIndex: nextIndex});
   }
 
   /**
@@ -417,5 +417,17 @@ export class GameState {
       eventHistory: [...this._eventHistory],
       metadata: { ...this._metadata }
     });
+  }
+
+  /**
+   * 現在のプレイヤーインデックスを設定する（イミュータブル版）
+   * @param index 設定するインデックス
+   * @returns 新しいGameStateインスタンス
+   */
+  setCurrentPlayerIndex(index: number): GameState {
+    if (index < 0 || index >= this._players.length) {
+      throw new Error(`Invalid player index: ${index}`);
+    }
+    return this.newState({currentPlayerIndex: index});
   }
 }

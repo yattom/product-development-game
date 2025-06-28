@@ -23,5 +23,27 @@ describe('GameState', () => {
                 expect(nextState.currentPlayerIndex).toBe(0);
             });
         });
+
+        describe('setCurrentPlayerIndexXXX', () => {
+            it('指定したインデックスで新しいGameStateを返す', () => {
+                const state = createTestGameState({
+                    players: [createTestPlayer(), createTestPlayer(), createTestPlayer()],
+                    currentPlayerIndex: 0,
+                });
+                const nextState = state.setCurrentPlayerIndex(2);
+                expect(nextState).not.toBe(state);
+                expect(nextState.currentPlayerIndex).toBe(2);
+                expect(state.currentPlayerIndex).toBe(0);
+            });
+
+            it('不正なインデックスを指定した場合は例外を投げる', () => {
+                const state = createTestGameState({
+                    players: [createTestPlayer(), createTestPlayer(), createTestPlayer()],
+                    currentPlayerIndex: 0,
+                });
+                expect(() => state.setCurrentPlayerIndex(-1)).toThrow();
+                expect(() => state.setCurrentPlayerIndex(3)).toThrow();
+            });
+        });
     });
 });
