@@ -195,7 +195,7 @@ export class GameState {
    * 次のプレイヤーに順番を移す
    * @returns 新しい現在プレイヤーのインデックス
    */
-  moveToNextPlayer(): number {
+  moveToNextPlayerMUTING(): number {
     this._currentPlayerIndex = (this._currentPlayerIndex + 1) % this._players.length;
     return this._currentPlayerIndex;
   }
@@ -230,7 +230,7 @@ export class GameState {
    * 次のプレイヤーに順番を移す（イミュータブル版・一時的にmoveToNextPlayerXXXという名前で追加）
    * @returns 新しいGameStateインスタンス
    */
-  moveToNextPlayerXXX(): GameState {
+  moveToNextPlayer(): GameState {
     const nextIndex = (this._currentPlayerIndex + 1) % this._players.length;
     return this.newState({currentPlayerIndex: nextIndex});
   }
@@ -271,8 +271,17 @@ export class GameState {
    * カードを捨て札に加える
    * @param cards 捨て札に加えるカード
    */
-  discardCards(cards: Card[]): void {
+  discardCardsMUTING(cards: Card[]): void {
     this._discard.push(...cards);
+  }
+
+  /**
+   * カードを捨て札に加える（イミュータブル版）
+   * @param cards 捨て札に加えるカード
+   * @returns 新しいGameStateインスタンス
+   */
+  discardCards(cards: Card[]): GameState {
+    return this.newState({discard: [...this._discard, ...cards]});
   }
 
   /**

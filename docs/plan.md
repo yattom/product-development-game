@@ -12,15 +12,17 @@
 - 分離したものをさらにルールとして使えるようにする
 - GameStateをイミュータブルにする
    - GameStateの各メソッドをTDDサイクルでイミュータブル化する
-      - moveToNextPlayer
-      - setCurrentPlayerIndex
-      - （他のメソッドも順次追加）
-      - 対象メソッドのテストを書く
-      - ユーザーがテスト内容を確認
-      - テストが通るように実装を修正
-      - ユーザーが実装を確認
-      - 必要に応じてリファクタリング
-      - 次のメソッドへ進む
+      - discardCards
+      - moveCardToCompletionLane
+      - placeCardInWorkplace
+      - modifyResources
+      - modifyChaosLevel
+      - setChaosNotModifiedForFullRound
+      - addEvent
+      - setMetadata
+      - setVictoryConditions
+      - setDefeatConditions
+      - clone
    - すべてのメソッドが完了したら、以下の作業に進む
       - GameStateの各プロパティをreadonly化
       - 主要な操作（カードを引く・置く・リソース操作など）ごとに個別にイミュータブル対応
@@ -30,6 +32,11 @@
 - ゲームの初期化がGameContextのコンストラクタとSetupRuleに分かれてしまっているのは統合したい
 
 ## 済み
+
+- GameStateをイミュータブルにする
+   - GameStateの各メソッドをTDDサイクルでイミュータブル化する
+      - moveToNextPlayer
+      - setCurrentPlayerIndex
 
 1. **ルールシステム基盤の構築**
     - ルールインターフェースとコンテキスト

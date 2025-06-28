@@ -68,7 +68,7 @@ export class PlayCardRule implements GameRule {
     }
     
     // カードを捨て札に加える
-    state.discardCards([currentCard]);
+    state.discardCardsMUTING([currentCard]);
   }
 }
 
@@ -168,7 +168,7 @@ export class PlaceCardRule implements GameRule {
             state.moveCardToCompletionLane(previousCard);
           } else {
             // リソースが足りない場合は捨て札に
-            state.discardCards([previousCard]);
+            state.discardCardsMUTING([previousCard]);
           }
         } else {
           // トラブルカードや中立カードはコストなしでレーンに移動
@@ -196,14 +196,14 @@ export class PlaceCardRule implements GameRule {
             });
             
             // カードを捨て札に加える
-            state.discardCards([previousCard]);
+            state.discardCardsMUTING([previousCard]);
           } else {
             // リソースが足りない場合はレーンに移動
             state.moveCardToCompletionLane(previousCard);
           }
         } else {
           // リソースカードや中立カードは捨て札に
-          state.discardCards([previousCard]);
+          state.discardCardsMUTING([previousCard]);
         }
       }
     }
@@ -261,7 +261,7 @@ export class DiscardCardRule implements GameRule {
     currentPlayer.removeCardFromHand(cardId);
 
     // カードを捨て札に加える
-    state.discardCards([currentCard]);
+    state.discardCardsMUTING([currentCard]);
     
     // カード捨てイベントを記録
     state.addEvent({
