@@ -91,10 +91,10 @@ describe('GameState', () => {
                 expect(state.workplaces[Category.Technology]).toBe(card1);
             });
             it('カテゴリ不一致のカードを配置しようとすると例外', () => {
-                const card = createTestPlayer().hand[0];
+                const card = createTestCard({categories: [Category.User]})
                 // card.categoriesに0(Category.Technology)が含まれている前提
                 const state = createTestGameState();
-                expect(() => state.placeCardInWorkplaceMUTING(card, Category.User)).toThrow();
+                expect(() => state.placeCardInWorkplaceMUTING(card, Category.Technology)).toThrow();
             });
         });
     });
