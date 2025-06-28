@@ -11,6 +11,11 @@ out/
 
 # TypeScript
 *.tsbuildinfo
+*.d.ts
+*.js.map
+# Exclude JS files in TypeScript directories
+src/**/*.js
+tests/**/*.js
 
 # Environment variables
 .env
