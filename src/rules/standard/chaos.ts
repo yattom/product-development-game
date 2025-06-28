@@ -1,4 +1,4 @@
-import { ActionType, GameContext, GameEventType, GameRule, RuleType } from '../interfaces';
+import {ActionType, GameContext, GameEventType, GameRule, RuleType} from '../interfaces';
 
 /**
  * 混沌レベル2の効果ルール
@@ -65,7 +65,7 @@ export class ChaosLevel2Rule implements GameRule {
       
       if (discardedCard) {
         // カードを捨て札に加える
-        state.discardCards([discardedCard]);
+        state.discardCardsMUTING([discardedCard]);
         
         // カードを捨てたイベントを記録
         state.addEvent({
@@ -174,7 +174,7 @@ export class ChaosLevel3Rule implements GameRule {
       }
       
       // カードを捨て札に加える
-      state.discardCards([card]);
+      state.discardCardsMUTING([card]);
     }
   }
 }

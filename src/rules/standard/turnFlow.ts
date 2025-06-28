@@ -82,7 +82,7 @@ export class StandardTurnEndRule implements GameRule {
     });
 
     // 次のプレイヤーに順番を移す
-    const nextPlayerIndex = state.moveToNextPlayer(); // TODO: イミュータブル版に置き換え
+    const nextPlayerIndex = state.moveToNextPlayerMUTING(); // TODO: イミュータブル版に置き換え
 
     // 全プレイヤーが1巡したかチェック（最初のプレイヤーに戻った場合）
     if (nextPlayerIndex === 0) {
