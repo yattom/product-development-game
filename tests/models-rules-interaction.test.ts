@@ -1,58 +1,7 @@
 // Jest functions are globally available
-import {ActionType, Card, Category, GameEventType, GameState, Player, RuleType} from '../src';
+import {ActionType, Card, Category, GameEventType, Player, RuleType} from '../src';
 import {PlaceCardRule, PlayCardRule} from '../src/rules/standard/actions';
-
-// Single ID sequence counter for all types
-let idCounter = 0;
-
-function getNextId(): number {
-    return ++idCounter;
-}
-
-function createTestCard(overrides = {}) {
-    const uniqueId = getNextId();
-    return new Card({
-        id: `test-card-${uniqueId}`,
-        name: `テストカード-${uniqueId}`,
-        description: `テスト用のカード-${uniqueId}`,
-        categories: [Category.Technology],
-        situationEffect: 1,
-        ...overrides
-    });
-}
-
-function createTestPlayer(handCard: Card) {
-    // プレイヤーを作成
-    const uniqueId = getNextId();
-    return new Player({
-        id: `test-player-${uniqueId}`,
-        name: `テストプレイヤー-${uniqueId}`,
-        hand: [handCard]
-    });
-}
-
-function createTestGameState(overrides = {}) {
-    return new GameState({
-        players: [createTestPlayer(createTestCard())],
-        currentPlayerIndex: 0,
-        deck: [],
-        workplaces: {},
-        completionLane: [],
-        chaosLevel: 0,
-        resources: 2,
-        activeRuleSet: {
-            id: `test-ruleset-${getNextId()}`,
-            name: 'テストルールセット',
-            description: 'テスト用のルールセット',
-            rules: []
-        },
-        victoryConditions: [],
-        defeatConditions: [],
-        ...overrides
-    });
-
-
-}
+import {createTestCard, createTestGameState, createTestPlayer, getNextId} from './fixture/create_helper';
 
 describe('Models and Rules Interaction', () => {
     it('手札を置き場において元々あったカードを1枚レーンに動かす', () => {
