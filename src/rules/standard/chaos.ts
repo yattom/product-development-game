@@ -203,18 +203,15 @@ export class ModifyChaosLevelRule implements GameRule {
    * @param context ゲームコンテキスト
    */
   apply(context: GameContext): void {
-    const { state, currentAction } = context;
-    if (!currentAction) return;
+    const {state, metadata, currentAction, currentPlayer} = context;
+    if (!currentAction || !currentPlayer) return;
 
-    const delta = currentAction.payload.delta as number;
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    
-    // 混沌レベルを変更する前の値を保存
+    const delta = metadata.effectParams?.delta as number;
     const oldChaosLevel = state.chaosLevel;
-    
-    // 混沌レベルを変更
-    const actualChange = state.modifyChaosLevel(delta, state.currentPlayerIndex);
-    
+
+    const actualChange = state.modifyChaosLevelMUTING(delta, state.currentPlayerIndex);
+
+    // イベントを記録
     if (actualChange !== 0) {
       // 混沌レベルが変更された場合、メタデータをリセット
       state.setMetadata('roundsSinceChaosModified', 0);
