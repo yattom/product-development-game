@@ -375,7 +375,7 @@ export class GameState {
    * @param playerIndex 変更したプレイヤーのインデックス
    * @returns 実際に変更された量
    */
-  modifyChaosLevel(delta: number, playerIndex: number): number {
+  modifyChaosLevelMUTING(delta: number, playerIndex: number): number {
     const oldChaosLevel = this._chaosLevel;
     this._chaosLevel = Math.max(0, Math.min(3, this._chaosLevel + delta));
 
@@ -385,6 +385,27 @@ export class GameState {
     }
 
     return this._chaosLevel - oldChaosLevel;
+  }
+
+  /**
+   * 混沌レベルを変更する（イミュータブル版）
+   * @param delta 変更量（正の値で増加、負の値で減少）
+   * @param playerIndex 変更したプレイヤーのインデックス
+   * @returns 新しいGameStateインスタンス
+   */
+  modifyChaosLevel(delta: number, playerIndex: number): GameState {
+    const newChaosLevel = Math.max(0, Math.min(3, this._chaosLevel + delta));
+
+    const updates: Partial<ConstructorParameters<typeof GameState>[0]> = {
+      chaosLevel: newChaosLevel,
+    };
+
+    if (delta !== 0) {
+      updates.lastChaosModifierPlayer = playerIndex;
+      updates.chaosNotModifiedForFullRound = false;
+    }
+
+    return this.newState(updates);
   }
 
   /**

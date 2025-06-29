@@ -116,7 +116,7 @@ export class StandardTurnEndRule implements GameRule {
           }
         });
 
-        state.modifyChaosLevel(1, -1); // -1は特殊値でプレイヤーではなくシステムによる変更を示す
+        state.modifyChaosLevelMUTING(1, -1); // -1は特殊値でプレイヤーではなくシステムによる変更を示す
       }
     } else {
       // 混沌レベルが変更されていない場合、カウンターを増やす

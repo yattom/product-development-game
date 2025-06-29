@@ -117,5 +117,45 @@ describe('GameState', () => {
                 expect(nextState2.resources).toBe(3);
             });
         });
+
+        describe('modifyChaosLevel', () => {
+            it('カオスレベルを正しく変更し、新しいGameStateを返す', () => {
+                const state = createTestGameState({
+                    chaosLevel: 1,
+                    lastChaosModifierPlayer: null,
+                    chaosNotModifiedForFullRound: true,
+                });
+                const nextState = state.modifyChaosLevel(1, 0);
+                expect(nextState).not.toBe(state);
+                expect(nextState.chaosLevel).toBe(2);
+                expect(nextState.lastChaosModifierPlayer).toBe(0);
+                expect(nextState.chaosNotModifiedForFullRound).toBe(false);
+
+                expect(state.chaosLevel).toBe(1);
+                expect(state.lastChaosModifierPlayer).toBe(null);
+                expect(state.chaosNotModifiedForFullRound).toBe(true);
+            });
+
+            it('カオスレベルが0未満にも4以上にもならない', () => {
+                const state1 = createTestGameState({chaosLevel: 0});
+                const nextState1 = state1.modifyChaosLevel(-1, 0);
+                expect(nextState1.chaosLevel).toBe(0);
+
+                const state2 = createTestGameState({chaosLevel: 3});
+                const nextState2 = state2.modifyChaosLevel(1, 0);
+                expect(nextState2.chaosLevel).toBe(3);
+            });
+
+            it('変更量が0の場合はlastChaosModifierPlayerとchaosNotModifiedForFullRoundを変更しない', () => {
+                const state = createTestGameState({
+                    chaosLevel: 1,
+                    lastChaosModifierPlayer: 1,
+                    chaosNotModifiedForFullRound: true,
+                });
+                const nextState = state.modifyChaosLevel(0, 0);
+                expect(nextState.lastChaosModifierPlayer).toBe(1);
+                expect(nextState.chaosNotModifiedForFullRound).toBe(true);
+            });
+        });
     });
 });

@@ -15,8 +15,6 @@
       - メソッドがテスト以外で使われているかまず確認する
       - 使われているようであれば、既存のメソッドの名前を変更するリファクタリングをして、いったん動きを維持する。名前は、元の名前のおわりに「MUTING」をくっつけたものにする。そのうえで、TDDで新たなイミュータブル実装をつくる
       - 使われていなければ、TDDの流れで書き換える
-      - modifyResources
-      - modifyChaosLevel
       - setChaosNotModifiedForFullRound
       - addEvent
       - setMetadata
@@ -41,6 +39,7 @@
        - discardCards
        - moveCardToCompletionLane
        - placeCardInWorkplace
+     - modifyResources
 
 1. **ルールシステム基盤の構築**
     - ルールインターフェースとコンテキスト
