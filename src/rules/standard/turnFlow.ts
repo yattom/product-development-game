@@ -29,7 +29,7 @@ export class StandardTurnStartRule implements GameRule {
     const currentPlayer = state.players[state.currentPlayerIndex];
 
     // ターン開始イベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.PlayerTurnStarted,
       timestamp: Date.now(),
       data: {
@@ -71,7 +71,7 @@ export class StandardTurnEndRule implements GameRule {
     const currentPlayer = state.players[state.currentPlayerIndex];
 
     // ターン終了イベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.PlayerTurnEnded,
       timestamp: Date.now(),
       data: {
@@ -106,7 +106,7 @@ export class StandardTurnEndRule implements GameRule {
         state.setMetadata('roundsSinceChaosModified', 0);
 
         // 混沌レベル変更イベントを記録
-        state.addEvent({
+        state.addEventMUTING({
           type: GameEventType.ChaosChanged,
           timestamp: Date.now(),
           data: {
@@ -170,7 +170,7 @@ export class StandardDrawRule implements GameRule {
     drawnCards.forEach(card => {
       currentPlayer.addCardToHand(card);
 
-      state.addEvent({
+      state.addEventMUTING({
         type: GameEventType.CardDrawn,
         timestamp: Date.now(),
         data: {

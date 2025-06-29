@@ -419,8 +419,16 @@ export class GameState {
    * イベントを履歴に追加する
    * @param event 追加するイベント
    */
-  addEvent(event: GameEvent): void {
+  addEventMUTING(event: GameEvent): void {
     this._eventHistory.push(event);
+  }
+
+  /**
+   * イベントを履歴に追加する
+   * @param event 追加するイベント
+   */
+  addEvent(event: GameEvent): GameState {
+    return this.newState({eventHistory: [...this._eventHistory, event]});
   }
 
   /**

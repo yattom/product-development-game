@@ -30,7 +30,7 @@ export class ModifyResourcesRule implements GameRule {
     const actualChange = state.modifyResourcesMUTING(delta);
 
     // イベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.ResourceChanged,
       timestamp: Date.now(),
       data: {
@@ -75,7 +75,7 @@ export class PayResourcesRule implements GameRule {
     const actualChange = state.modifyResourcesMUTING(-amount);
 
     // イベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.ResourceChanged,
       timestamp: Date.now(),
       data: {
