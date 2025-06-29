@@ -97,5 +97,25 @@ describe('GameState', () => {
                 expect(() => state.placeCardInWorkplaceMUTING(card, Category.Technology)).toThrow();
             });
         });
+
+        describe('modifyResources', () => {
+            it('リソースを正しく変更し、新しいGameStateを返す', () => {
+                const state = createTestGameState({ resources: 1 });
+                const nextState = state.modifyResources(1);
+                expect(nextState).not.toBe(state);
+                expect(nextState.resources).toBe(2);
+                expect(state.resources).toBe(1);
+            });
+
+            it('リソースが0未満にも4以上にもならない', () => {
+                const state1 = createTestGameState({ resources: 0 });
+                const nextState1 = state1.modifyResources(-1);
+                expect(nextState1.resources).toBe(0);
+
+                const state2 = createTestGameState({ resources: 3 });
+                const nextState2 = state2.modifyResources(1);
+                expect(nextState2.resources).toBe(3);
+            });
+        });
     });
 });
