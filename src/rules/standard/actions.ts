@@ -106,8 +106,8 @@ export class PlaceCardRule implements GameRule {
     
     // リソースの増減処理
     const resourceChange = removedCard.situationEffect;
-    const actualChange = state.modifyResources(resourceChange);
-    
+    const actualChange = state.modifyResourcesMUTING(resourceChange);
+
     // リソース変更イベントを記録
     if (actualChange !== 0) {
       state.addEvent({
@@ -150,8 +150,8 @@ export class PlaceCardRule implements GameRule {
           const cost = previousCard.situationEffect;
           if (state.resources >= cost) {
             // リソースを支払う
-            state.modifyResources(-cost);
-            
+            state.modifyResourcesMUTING(-cost);
+
             // リソース変更イベントを記録
             state.addEvent({
               type: GameEventType.ResourceChanged,
@@ -181,8 +181,8 @@ export class PlaceCardRule implements GameRule {
           const cost = Math.abs(previousCard.situationEffect);
           if (state.resources >= cost) {
             // リソースを支払う
-            state.modifyResources(-cost);
-            
+            state.modifyResourcesMUTING(-cost);
+
             // リソース変更イベントを記録
             state.addEvent({
               type: GameEventType.ResourceChanged,

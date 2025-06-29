@@ -24,31 +24,22 @@ export class ModifyResourcesRule implements GameRule {
    * @param context ゲームコンテキスト
    */
   apply(context: GameContext): void {
-    const { state, currentAction } = context;
-    if (!currentAction) return;
+    const { state, metadata } = context;
+    const delta = metadata.effectParams?.delta as number;
 
-    const delta = currentAction.payload.delta as number;
-    const reason = currentAction.payload.reason as string || 'カード効果';
-    
-    // リソースを変更する前の値を保存
-    const oldResources = state.resources;
-    
-    // リソースを変更
-    const actualChange = state.modifyResources(delta);
-    
-    if (actualChange !== 0) {
-      // リソース変更イベントを記録
-      state.addEvent({
-        type: GameEventType.ResourceChanged,
-        timestamp: Date.now(),
-        data: {
-          oldValue: oldResources,
-          newValue: state.resources,
-          change: actualChange,
-          reason: reason
-        }
-      });
-    }
+    const actualChange = state.modifyResourcesMUTING(delta);
+
+    // イベントを記録
+    state.addEvent({
+      type: GameEventType.ResourceChanged,
+      timestamp: Date.now(),
+      data: {
+        oldValue: state.resources - actualChange,
+        newValue: state.resources,
+        change: actualChange,
+        reason: metadata.effectParams?.reason || 'カード効果'
+      }
+    });
   }
 }
 
@@ -78,40 +69,21 @@ export class PayResourcesRule implements GameRule {
    * @param context ゲームコンテキスト
    */
   apply(context: GameContext): void {
-    const { state, currentAction } = context;
-    if (!currentAction) return;
+    const { state, metadata } = context;
+    const amount = metadata.effectParams?.amount as number;
 
-    const amount = currentAction.payload.amount as number;
-    const purpose = currentAction.payload.purpose as string;
-    
-    // 現在のリソースが支払い額以上かチェック
-    if (state.resources < amount) {
-      // リソースが足りない場合は支払い失敗のフラグを設定
-      context.metadata.paymentFailed = true;
-      return;
-    }
-    
-    // リソースを変更する前の値を保存
-    const oldResources = state.resources;
-    
-    // リソースを減らす
-    const actualChange = state.modifyResources(-amount);
-    
-    if (actualChange !== 0) {
-      // リソース変更イベントを記録
-      state.addEvent({
-        type: GameEventType.ResourceChanged,
-        timestamp: Date.now(),
-        data: {
-          oldValue: oldResources,
-          newValue: state.resources,
-          change: actualChange,
-          reason: `支払い: ${purpose}`
-        }
-      });
-      
-      // 支払い成功のフラグを設定
-      context.metadata.paymentSucceeded = true;
-    }
+    const actualChange = state.modifyResourcesMUTING(-amount);
+
+    // イベントを記録
+    state.addEvent({
+      type: GameEventType.ResourceChanged,
+      timestamp: Date.now(),
+      data: {
+        oldValue: state.resources + actualChange,
+        newValue: state.resources,
+        change: actualChange,
+        reason: `支払い: ${metadata.effectParams?.purpose}`
+      }
+    });
   }
 }

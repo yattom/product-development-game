@@ -353,10 +353,20 @@ export class GameState {
    * @param delta 変更量（正の値で増加、負の値で減少）
    * @returns 実際に変更された量
    */
-  modifyResources(delta: number): number {
+  modifyResourcesMUTING(delta: number): number {
     const oldResources = this._resources;
     this._resources = Math.max(0, Math.min(3, this._resources + delta));
     return this._resources - oldResources;
+  }
+
+  /**
+   * リソースを変更する（イミュータブル版）
+   * @param delta 変更量（正の値で増加、負の値で減少）
+   * @returns 新しいGameStateインスタンス
+   */
+  modifyResources(delta: number): GameState {
+    const newResources = Math.max(0, Math.min(3, this._resources + delta));
+    return this.newState({resources: newResources});
   }
 
   /**
