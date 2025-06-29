@@ -157,5 +157,15 @@ describe('GameState', () => {
                 expect(nextState.chaosNotModifiedForFullRound).toBe(true);
             });
         });
+
+        describe('setChaosNotModifiedForFullRound', () => {
+            it('値を設定し、新しいGameStateを返す', () => {
+                const state = createTestGameState({ chaosNotModifiedForFullRound: false });
+                const nextState = state.setChaosNotModifiedForFullRound(true);
+                expect(nextState).not.toBe(state);
+                expect(nextState.chaosNotModifiedForFullRound).toBe(true);
+                expect(state.chaosNotModifiedForFullRound).toBe(false);
+            });
+        });
     });
 });

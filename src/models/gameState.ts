@@ -411,8 +411,8 @@ export class GameState {
   /**
    * 1ラウンドの間に混沌レベルが変更されなかったフラグを設定する
    */
-  setChaosNotModifiedForFullRound(value: boolean): void {
-    this._chaosNotModifiedForFullRound = value;
+  setChaosNotModifiedForFullRound(value: boolean): GameState {
+    return this.newState({chaosNotModifiedForFullRound: value});
   }
 
   /**
