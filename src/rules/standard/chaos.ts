@@ -43,7 +43,7 @@ export class ChaosLevel2Rule implements GameRule {
     currentPlayer.addCardToHand(drawnCard);
     
     // カードを引いたイベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.CardDrawn,
       timestamp: Date.now(),
       data: {
@@ -68,7 +68,7 @@ export class ChaosLevel2Rule implements GameRule {
         state.discardCardsMUTING([discardedCard]);
         
         // カードを捨てたイベントを記録
-        state.addEvent({
+        state.addEventMUTING({
           type: GameEventType.CardDiscarded,
           timestamp: Date.now(),
           data: {
@@ -126,7 +126,7 @@ export class ChaosLevel3Rule implements GameRule {
     // 引いたカードを即座にプレイ
     for (const card of drawnCards) {
       // カードを引いたイベントを記録
-      state.addEvent({
+      state.addEventMUTING({
         type: GameEventType.CardDrawn,
         timestamp: Date.now(),
         data: {
@@ -144,7 +144,7 @@ export class ChaosLevel3Rule implements GameRule {
         const effectRuleId = card.playEffect.ruleId;
         
         // カードプレイイベントを記録
-        state.addEvent({
+        state.addEventMUTING({
           type: GameEventType.CardPlayed,
           timestamp: Date.now(),
           data: {
@@ -217,7 +217,7 @@ export class ModifyChaosLevelRule implements GameRule {
       state.setMetadata('roundsSinceChaosModified', 0);
       
       // 混沌レベル変更イベントを記録
-      state.addEvent({
+      state.addEventMUTING({
         type: GameEventType.ChaosChanged,
         timestamp: Date.now(),
         data: {
@@ -235,7 +235,7 @@ export class ModifyChaosLevelRule implements GameRule {
       // 混沌レベルが3の状態でさらに増やそうとした場合
       if (oldChaosLevel === 3 && delta > 0) {
         // オーバーフローイベントを記録
-        state.addEvent({
+        state.addEventMUTING({
           type: GameEventType.DefeatTriggered,
           timestamp: Date.now(),
           data: {

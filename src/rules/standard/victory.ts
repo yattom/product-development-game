@@ -78,7 +78,7 @@ export class CheckVictoryRule implements GameRule {
 
       if (victoryAchieved) {
         // 勝利条件達成イベントを記録
-        state.addEvent({
+        state.addEventMUTING({
           type: GameEventType.VictoryAchieved,
           timestamp: Date.now(),
           data: {
@@ -232,7 +232,7 @@ export class CheckDefeatRule implements GameRule {
 
       if (defeatTriggered) {
         // 敗北条件達成イベントを記録
-        state.addEvent({
+        state.addEventMUTING({
           type: GameEventType.DefeatTriggered,
           timestamp: Date.now(),
           data: {

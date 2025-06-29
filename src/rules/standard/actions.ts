@@ -34,7 +34,7 @@ export class PlayCardRule implements GameRule {
     currentPlayer.removeCardFromHand(cardId);
 
     // カードプレイイベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.CardPlayed,
       timestamp: Date.now(),
       data: {
@@ -110,7 +110,7 @@ export class PlaceCardRule implements GameRule {
 
     // リソース変更イベントを記録
     if (actualChange !== 0) {
-      state.addEvent({
+      state.addEventMUTING({
         type: GameEventType.ResourceChanged,
         timestamp: Date.now(),
         data: {
@@ -123,7 +123,7 @@ export class PlaceCardRule implements GameRule {
     }
     
     // カード配置イベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.CardPlaced,
       timestamp: Date.now(),
       data: {
@@ -153,7 +153,7 @@ export class PlaceCardRule implements GameRule {
             state.modifyResourcesMUTING(-cost);
 
             // リソース変更イベントを記録
-            state.addEvent({
+            state.addEventMUTING({
               type: GameEventType.ResourceChanged,
               timestamp: Date.now(),
               data: {
@@ -184,7 +184,7 @@ export class PlaceCardRule implements GameRule {
             state.modifyResourcesMUTING(-cost);
 
             // リソース変更イベントを記録
-            state.addEvent({
+            state.addEventMUTING({
               type: GameEventType.ResourceChanged,
               timestamp: Date.now(),
               data: {
@@ -264,7 +264,7 @@ export class DiscardCardRule implements GameRule {
     state.discardCardsMUTING([currentCard]);
     
     // カード捨てイベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.CardDiscarded,
       timestamp: Date.now(),
       data: {

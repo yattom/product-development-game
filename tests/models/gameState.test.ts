@@ -1,5 +1,5 @@
 import {createTestCard, createTestGameState, createTestPlayer} from '../fixture/create_helper';
-import {Category} from "../../src";
+import {Category, GameEventType} from "../../src";
 
 describe('GameState', () => {
     describe('immutableであること', () => {
@@ -165,6 +165,21 @@ describe('GameState', () => {
                 expect(nextState).not.toBe(state);
                 expect(nextState.chaosNotModifiedForFullRound).toBe(true);
                 expect(state.chaosNotModifiedForFullRound).toBe(false);
+            });
+        });
+
+        describe('addEvent', () => {
+            it('Eventを追加する', () => {
+                const state = createTestGameState();
+                const event = {
+                    type: GameEventType.GameStarted,
+                    timestamp: Date.now(),
+                    data: { message: 'This is a test event' }
+                };
+                const nextState = state.addEvent(event);
+                expect(nextState).not.toBe(state);
+                expect(nextState.eventHistory).toContain(event);
+                expect(state.eventHistory).not.toContain(event);
             });
         });
     });
