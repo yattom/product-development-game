@@ -3,43 +3,44 @@
 ## TODO
 
 - いくつかのルールについて働きをテストで確認しながらリファクタリングする
-   - セットアップルール
-   - ターンフロールール
-   - リソース管理ルール
-   - 混沌ルール
+    - セットアップルール
+    - ターンフロールール
+    - リソース管理ルール
+    - 混沌ルール
 - GameState.drawCards()が勝手に捨て札を使わないよう修正
 - PlaceCardRule.apply()で、置き場のカードの処理をそれぞれ分離する
 - 分離したものをさらにルールとして使えるようにする
 - GameStateをイミュータブルにする
-   - GameStateの各メソッドをTDDサイクルでイミュータブル化する
-      - メソッドがテスト以外で使われているかまず確認する
-      - 使われているようであれば、既存のメソッドの名前を変更するリファクタリングをして、いったん動きを維持する。名前は、元の名前のおわりに「MUTING」をくっつけたものにする。そのうえで、TDDで新たなイミュータブル実装をつくる
-      - 使われていなければ、TDDの流れで書き換える
-      - setChaosNotModifiedForFullRound
-      - addEvent
-      - setMetadata
-      - setVictoryConditions
-      - setDefeatConditions
-      - clone
-   - すべてのメソッドが完了したら、以下の作業に進む
-      - GameStateの各プロパティをreadonly化
-      - 主要な操作（カードを引く・置く・リソース操作など）ごとに個別にイミュータブル対応
-      - 既存のルール・エフェクト処理が新しいGameStateを返すよう修正
-     - MUTINGがついているメソッドを置き換えていく
-      - テストケースの修正・追加（イミュータブル性の検証）
-      - 不変化の恩恵を活かす仕組み（undo/redoや履歴管理など）の検討
+    - GameStateの各メソッドをTDDサイクルでイミュータブル化する
+        - メソッドがテスト以外で使われているかまず確認する
+        -
+      使われているようであれば、既存のメソッドの名前を変更するリファクタリングをして、いったん動きを維持する。名前は、元の名前のおわりに「MUTING」をくっつけたものにする。そのうえで、TDDで新たなイミュータブル実装をつくる
+        - 使われていなければ、TDDの流れで書き換える
+        - setChaosNotModifiedForFullRound
+        - addEvent
+        - setMetadata
+        - setVictoryConditions
+        - setDefeatConditions
+        - clone
+    - すべてのメソッドが完了したら、以下の作業に進む
+        - GameStateの各プロパティをreadonly化
+        - 主要な操作（カードを引く・置く・リソース操作など）ごとに個別にイミュータブル対応
+        - 既存のルール・エフェクト処理が新しいGameStateを返すよう修正
+        - MUTINGがついているメソッドを置き換えていく
+        - テストケースの修正・追加（イミュータブル性の検証）
+        - 不変化の恩恵を活かす仕組み（undo/redoや履歴管理など）の検討
 - ゲームの初期化がGameContextのコンストラクタとSetupRuleに分かれてしまっているのは統合したい
 
 ## 済み
 
 - GameStateをイミュータブルにする
-   - GameStateの各メソッドをTDDサイクルでイミュータブル化する
-       - moveToNextPlayer
-       - setCurrentPlayerIndex
-       - discardCards
-       - moveCardToCompletionLane
-       - placeCardInWorkplace
-     - modifyResources
+    - GameStateの各メソッドをTDDサイクルでイミュータブル化する
+        - moveToNextPlayer
+        - setCurrentPlayerIndex
+        - discardCards
+        - moveCardToCompletionLane
+        - placeCardInWorkplace
+        - modifyResources
 
 1. **ルールシステム基盤の構築**
     - ルールインターフェースとコンテキスト
@@ -52,11 +53,11 @@
     - ルール適用フロー
 
 3. **カードシステムの実装（部分的）**
-   - カードデータ構造
-   - カード効果ルール
+    - カードデータ構造
+    - カード効果ルール
 
 4. **カスタマイズと拡張性（部分的）**
-   - 新規ルールの追加方法
+    - 新規ルールの追加方法
 
 ## 5. 実装順序
 
