@@ -50,12 +50,12 @@ npm run clean
 
 ```typescript
 // テストの例
-import { someFunction } from './path/to/module';
+import {someFunction} from './path/to/module';
 
 describe('someFunction', () => {
-  it('should do something correctly', () => {
-    expect(someFunction()).toBe(expectedResult);
-  });
+    it('should do something correctly', () => {
+        expect(someFunction()).toBe(expectedResult);
+    });
 });
 ```
 
@@ -67,10 +67,11 @@ describe('someFunction', () => {
 4. **テスト駆動開発**: 新機能の追加前にテストを書く
 5. **コメント**: 複雑なロジックには適切なコメントを付ける
 6. **命名規則**:
-    - クラス: PascalCase
-    - 関数・変数: camelCase
-    - 定数: UPPER_SNAKE_CASE
-    - インターフェース: IPascalCase または PascalCase
+
+- クラス: PascalCase
+- 関数・変数: camelCase
+- 定数: UPPER_SNAKE_CASE
+- インターフェース: IPascalCase または PascalCase
 
 ## 新機能の追加方法
 
