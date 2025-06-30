@@ -88,8 +88,8 @@ export class CheckVictoryRule implements GameRule {
         });
 
         // 勝利フラグをメタデータに設定
-        state.setMetadata('gameOver', true);
-        state.setMetadata('victoryAchieved', true);
+        state.setMetadataMUTING('gameOver', true);
+        state.setMetadataMUTING('victoryAchieved', true);
 
         // 1つでも勝利条件を満たしていれば処理終了
         break;
@@ -242,8 +242,8 @@ export class CheckDefeatRule implements GameRule {
         });
 
         // 敗北フラグをメタデータに設定
-        state.setMetadata('gameOver', true);
-        state.setMetadata('defeatTriggered', true);
+        state.setMetadataMUTING('gameOver', true);
+        state.setMetadataMUTING('defeatTriggered', true);
 
         // 1つでも敗北条件を満たしていれば処理終了
         break;

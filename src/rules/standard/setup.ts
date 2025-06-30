@@ -49,7 +49,7 @@ export class StandardSetupRule implements GameRule {
     // （GameStateのコンストラクタで既に0に初期化されているため、ここでは何もしない）
 
     // 状態のメタデータを初期化
-    state.setMetadata('roundsSinceChaosModified', 0);
+    state.setMetadataMUTING('roundsSinceChaosModified', 0);
   }
 
   /**

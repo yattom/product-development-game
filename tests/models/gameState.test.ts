@@ -182,5 +182,15 @@ describe('GameState', () => {
                 expect(state.eventHistory).not.toContain(event);
             });
         });
+
+        describe('setMetadata', () => {
+            it('値を設定し、新しいGameStateを返す', () => {
+                const state = createTestGameState();
+                const nextState = state.setMetadata('testKey', 'testValue');
+                expect(nextState).not.toBe(state);
+                expect(nextState.getMetadata('testKey')).toBe('testValue');
+                expect(state.getMetadata('testKey')).toBe(undefined);
+            });
+        });
     });
 });

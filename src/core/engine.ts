@@ -92,7 +92,7 @@ export class GameEngine {
    */
   setRuleSet(ruleSetId: string): void {
     const ruleSet = this.ruleRegistry.getRuleSet(ruleSetId);
-    this.state.setMetadata('activeRuleSetId', ruleSet.id);
+    this.state.setMetadataMUTING('activeRuleSetId', ruleSet.id);
   }
 
   /**
