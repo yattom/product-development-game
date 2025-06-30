@@ -68,19 +68,19 @@ src/
 ```typescript
 // 新しいルールの例
 export class MyCustomRule implements GameRule {
-  readonly id = 'my-custom-rule';
-  readonly name = 'カスタムルール';
-  readonly description = 'カスタムルールの説明';
-  readonly type = RuleType.ActionRule;
+    readonly id = 'my-custom-rule';
+    readonly name = 'カスタムルール';
+    readonly description = 'カスタムルールの説明';
+    readonly type = RuleType.ActionRule;
 
-  isApplicable(context: GameContext): boolean {
-    // このルールが適用可能かどうかの条件
-    return true;
-  }
+    isApplicable(context: GameContext): boolean {
+        // このルールが適用可能かどうかの条件
+        return true;
+    }
 
-  apply(context: GameContext): void {
-    // ルールの適用ロジック
-  }
+    apply(context: GameContext): void {
+        // ルールの適用ロジック
+    }
 }
 ```
 

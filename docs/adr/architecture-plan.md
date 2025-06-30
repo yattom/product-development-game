@@ -6,41 +6,43 @@
 ```typescript
 // ルールプラグインのインターフェース
 interface GameRule {
-  id: string;
-  name: string;
-  description: string;
-  type: RuleType;
-  apply(context: GameContext): void;
-  isApplicable(context: GameContext): boolean;
+    id: string;
+    name: string;
+    description: string;
+    type: RuleType;
+
+    apply(context: GameContext): void;
+
+    isApplicable(context: GameContext): boolean;
 }
 
 // ルールの種類
 enum RuleType {
-  Setup,           // ゲーム準備ルール
-  TurnFlow,        // ターン進行ルール
-  ActionRule,      // アクション実行ルール
-  ResourceRule,    // リソース管理ルール
-  ChaosRule,       // 混沌関連ルール
-  VictoryRule,     // 勝利条件ルール
-  DefeatRule,      // 敗北条件ルール
-  CardEffect,      // カード効果ルール
+    Setup,           // ゲーム準備ルール
+    TurnFlow,        // ターン進行ルール
+    ActionRule,      // アクション実行ルール
+    ResourceRule,    // リソース管理ルール
+    ChaosRule,       // 混沌関連ルール
+    VictoryRule,     // 勝利条件ルール
+    DefeatRule,      // 敗北条件ルール
+    CardEffect,      // カード効果ルール
 }
 
 // ルールコンテキスト
 interface GameContext {
-  state: GameState;
-  currentAction?: Action;
-  currentCard?: Card;
-  currentPlayer?: Player;
-  metadata: Record<string, any>;
+    state: GameState;
+    currentAction?: Action;
+    currentCard?: Card;
+    currentPlayer?: Player;
+    metadata: Record<string, any>;
 }
 
 // ルールセット
 interface RuleSet {
-  id: string;
-  name: string;
-  description: string;
-  rules: GameRule[];
+    id: string;
+    name: string;
+    description: string;
+    rules: GameRule[];
 }
 ```
 
