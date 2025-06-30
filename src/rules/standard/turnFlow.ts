@@ -103,7 +103,7 @@ export class StandardTurnEndRule implements GameRule {
       const newChaosLevel = Math.min(3, state.chaosLevel + 1);
       if (newChaosLevel > state.chaosLevel) {
         state.setChaosNotModifiedForFullRound(true);
-        state.setMetadata('roundsSinceChaosModified', 0);
+        state.setMetadataMUTING('roundsSinceChaosModified', 0);
 
         // 混沌レベル変更イベントを記録
         state.addEventMUTING({
@@ -120,7 +120,7 @@ export class StandardTurnEndRule implements GameRule {
       }
     } else {
       // 混沌レベルが変更されていない場合、カウンターを増やす
-      state.setMetadata('roundsSinceChaosModified', roundsSinceChaosModified + 1);
+      state.setMetadataMUTING('roundsSinceChaosModified', roundsSinceChaosModified + 1);
     }
   }
 }

@@ -214,7 +214,7 @@ export class ModifyChaosLevelRule implements GameRule {
     // イベントを記録
     if (actualChange !== 0) {
       // 混沌レベルが変更された場合、メタデータをリセット
-      state.setMetadata('roundsSinceChaosModified', 0);
+      state.setMetadataMUTING('roundsSinceChaosModified', 0);
       
       // 混沌レベル変更イベントを記録
       state.addEventMUTING({

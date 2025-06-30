@@ -436,8 +436,18 @@ export class GameState {
    * @param key メタデータのキー
    * @param value メタデータの値
    */
-  setMetadata(key: string, value: any): void {
+  setMetadataMUTING(key: string, value: any): void {
     this._metadata[key] = value;
+  }
+
+  /**
+   * メタデータを設定する
+   * @param key メタデータのキー
+   * @param value メタデータの値
+   */
+  setMetadata(key: string, value: any): GameState {
+    const newMetadata = { ...this._metadata, [key]: value };
+    return this.newState({ metadata: newMetadata });
   }
 
   /**
