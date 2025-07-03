@@ -494,34 +494,6 @@ export class GameState {
   }
 
   /**
-   * ゲーム状態のクローンを作成する
-   * 主にテスト用
-   */
-  clone(): GameState {
-    return new GameState({
-      players: this._players.map(player => player.clone()),
-      currentPlayerIndex: this._currentPlayerIndex,
-      deck: this._deck.map(card => card.clone()),
-      discard: this._discard.map(card => card.clone()),
-      workplaces: {
-        [Category.Technology]: this._workplaces[Category.Technology]?.clone() ?? null,
-        [Category.User]: this._workplaces[Category.User]?.clone() ?? null,
-        [Category.Management]: this._workplaces[Category.Management]?.clone() ?? null
-      },
-      completionLane: this._completionLane.map(card => card.clone()),
-      chaosLevel: this._chaosLevel,
-      resources: this._resources,
-      activeRuleSet: this._activeRuleSet,
-      victoryConditions: [...this._victoryConditions],
-      defeatConditions: [...this._defeatConditions],
-      lastChaosModifierPlayer: this._lastChaosModifierPlayer,
-      chaosNotModifiedForFullRound: this._chaosNotModifiedForFullRound,
-      eventHistory: [...this._eventHistory],
-      metadata: { ...this._metadata }
-    });
-  }
-
-  /**
    * 現在のプレイヤーインデックスを設定する（イミュータブル版）
    * @param index 設定するインデックス
    * @returns 新しいGameStateインスタンス

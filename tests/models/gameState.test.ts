@@ -216,24 +216,5 @@ describe('GameState', () => {
                 expect(state.defeatConditions).toEqual(originalConditions);
             });
         });
-
-        describe('clone', () => {
-            it('GameStateの完全なコピーを作成し、元のGameStateとは異なる参照を返す', () => {
-                const state = createTestGameState();
-                const clonedState = state.clone();
-                expect(clonedState).not.toBe(state);
-                expect(clonedState.currentPlayerIndex).toBe(state.currentPlayerIndex);
-                expect(clonedState.chaosLevel).toBe(state.chaosLevel);
-                expect(clonedState.resources).toBe(state.resources);
-                expect(clonedState.players).not.toBe(state.players);
-                expect(clonedState.deck).not.toBe(state.deck);
-                expect(clonedState.discard).not.toBe(state.discard);
-                expect(clonedState.completionLane).not.toBe(state.completionLane);
-                expect(clonedState.victoryConditions).not.toBe(state.victoryConditions);
-                expect(clonedState.defeatConditions).not.toBe(state.defeatConditions);
-                expect(clonedState.eventHistory).not.toBe(state.eventHistory);
-                expect(clonedState.metadata).not.toBe(state.metadata);
-            });
-        });
     });
 });
