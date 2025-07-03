@@ -11,14 +11,6 @@
 - PlaceCardRule.apply()で、置き場のカードの処理をそれぞれ分離する
 - 分離したものをさらにルールとして使えるようにする
 - GameStateをイミュータブルにする
-  - GameStateの各メソッドをTDDサイクルでイミュータブル化する
-    - メソッドがテスト以外で使われているかまず確認する
-    -
-    使われているようであれば、既存のメソッドの名前を変更するリファクタリングをして、いったん動きを維持する。名前は、元の名前のおわりに「MUTING」をくっつけたものにする。そのうえで、TDDで新たなイミュータブル実装をつくる
-    - 使われていなければ、TDDの流れで書き換える
-    - setVictoryConditions
-    - setDefeatConditions
-    - clone
   - すべてのメソッドが完了したら、以下の作業に進む
     - GameStateの各プロパティをreadonly化
     - 主要な操作（カードを引く・置く・リソース操作など）ごとに個別にイミュータブル対応
@@ -32,6 +24,10 @@
 
 - GameStateをイミュータブルにする
   - GameStateの各メソッドをTDDサイクルでイミュータブル化する
+    - メソッドがテスト以外で使われているかまず確認する
+    -
+    使われているようであれば、既存のメソッドの名前を変更するリファクタリングをして、いったん動きを維持する。名前は、元の名前のおわりに「MUTING」をくっつけたものにする。そのうえで、TDDで新たなイミュータブル実装をつくる
+    - 使われていなければ、TDDの流れで書き換える
     - moveToNextPlayer
     - setCurrentPlayerIndex
     - discardCards
@@ -41,6 +37,10 @@
     - setChaosNotModifiedForFullRound
     - addEvent
     - setMetadata
+    - setVictoryConditions
+    - setDefeatConditions
+    - clone
+
 
 1. **ルールシステム基盤の構築**
 
