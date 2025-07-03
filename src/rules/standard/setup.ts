@@ -80,7 +80,7 @@ export class StandardSetupRule implements GameRule {
     const victoryCondition = VictoryCondition.createStandard(selectedType);
 
     // 勝利条件をゲーム状態に設定
-    state.setVictoryConditions([victoryCondition]);
+    state.setVictoryConditionsMUTING([victoryCondition]);
   }
 
   /**
@@ -96,6 +96,6 @@ export class StandardSetupRule implements GameRule {
     ];
 
     // 敗北条件をゲーム状態に設定
-    state.setDefeatConditions(defeatConditions);
+    state.setDefeatConditionsMUTING(defeatConditions);
   }
 }

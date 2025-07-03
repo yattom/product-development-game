@@ -463,16 +463,34 @@ export class GameState {
    * 勝利条件を設定する
    * @param conditions 設定する勝利条件の配列
    */
-  setVictoryConditions(conditions: VictoryCondition[]): void {
+  setVictoryConditionsMUTING(conditions: VictoryCondition[]): void {
     this._victoryConditions = [...conditions];
+  }
+
+  /**
+   * 勝利条件を設定する（イミュータブル版）
+   * @param conditions 設定する勝利条件の配列
+   * @returns 新しいGameStateインスタンス
+   */
+  setVictoryConditions(conditions: VictoryCondition[]): GameState {
+    return this.newState({victoryConditions: [...conditions]});
   }
 
   /**
    * 敗北条件を設定する
    * @param conditions 設定する敗北条件の配列
    */
-  setDefeatConditions(conditions: DefeatCondition[]): void {
+  setDefeatConditionsMUTING(conditions: DefeatCondition[]): void {
     this._defeatConditions = [...conditions];
+  }
+
+  /**
+   * 敗北条件を設定する（イミュータブル版）
+   * @param conditions 設定する敗北条件の配列
+   * @returns 新しいGameStateインスタンス
+   */
+  setDefeatConditions(conditions: DefeatCondition[]): GameState {
+    return this.newState({defeatConditions: [...conditions]});
   }
 
   /**

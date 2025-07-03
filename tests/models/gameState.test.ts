@@ -192,5 +192,48 @@ describe('GameState', () => {
                 expect(state.getMetadata('testKey')).toBe(undefined);
             });
         });
+
+        describe('setVictoryConditions', () => {
+            it('勝利条件を設定し、新しいGameStateを返す', () => {
+                const state = createTestGameState();
+                const originalConditions = state.victoryConditions;
+                const newConditions = [originalConditions[0]]; // 一部の条件のみ使用
+                const nextState = state.setVictoryConditions(newConditions);
+                expect(nextState).not.toBe(state);
+                expect(nextState.victoryConditions).toEqual(newConditions);
+                expect(state.victoryConditions).toEqual(originalConditions);
+            });
+        });
+
+        describe('setDefeatConditions', () => {
+            it('敗北条件を設定し、新しいGameStateを返す', () => {
+                const state = createTestGameState();
+                const originalConditions = state.defeatConditions;
+                const newConditions = [originalConditions[0]]; // 一部の条件のみ使用
+                const nextState = state.setDefeatConditions(newConditions);
+                expect(nextState).not.toBe(state);
+                expect(nextState.defeatConditions).toEqual(newConditions);
+                expect(state.defeatConditions).toEqual(originalConditions);
+            });
+        });
+
+        describe('clone', () => {
+            it('GameStateの完全なコピーを作成し、元のGameStateとは異なる参照を返す', () => {
+                const state = createTestGameState();
+                const clonedState = state.clone();
+                expect(clonedState).not.toBe(state);
+                expect(clonedState.currentPlayerIndex).toBe(state.currentPlayerIndex);
+                expect(clonedState.chaosLevel).toBe(state.chaosLevel);
+                expect(clonedState.resources).toBe(state.resources);
+                expect(clonedState.players).not.toBe(state.players);
+                expect(clonedState.deck).not.toBe(state.deck);
+                expect(clonedState.discard).not.toBe(state.discard);
+                expect(clonedState.completionLane).not.toBe(state.completionLane);
+                expect(clonedState.victoryConditions).not.toBe(state.victoryConditions);
+                expect(clonedState.defeatConditions).not.toBe(state.defeatConditions);
+                expect(clonedState.eventHistory).not.toBe(state.eventHistory);
+                expect(clonedState.metadata).not.toBe(state.metadata);
+            });
+        });
     });
 });
