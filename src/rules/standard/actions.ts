@@ -1,4 +1,4 @@
-import { ActionType, Category, GameContext, GameEventType, GameRule, RuleType } from '../interfaces';
+import {ActionType, Category, GameContext, GameEventType, GameRule, RuleType} from '../interfaces';
 
 /**
  * カードプレイルール
@@ -31,13 +31,10 @@ export class PlayCardRule implements GameRule {
     const cardId = currentAction.payload.cardId as string;
     
     // プレイヤーの手札からカードを削除
-    const removedCard = currentPlayer.removeCardFromHand(cardId);
-    if (!removedCard) {
-      throw new Error(`Card with id ${cardId} not found in player's hand`);
-    }
-    
+    currentPlayer.removeCardFromHand(cardId);
+
     // カードプレイイベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.CardPlayed,
       timestamp: Date.now(),
       data: {
@@ -71,7 +68,7 @@ export class PlayCardRule implements GameRule {
     }
     
     // カードを捨て札に加える
-    state.discardCards([currentCard]);
+    state.discardCardsMUTING([currentCard]);
   }
 }
 
@@ -99,55 +96,42 @@ export class PlaceCardRule implements GameRule {
    * @param context ゲームコンテキスト
    */
   apply(context: GameContext): void {
-    const { state, currentCard, currentAction } = context;
-    if (!currentCard || !currentAction) return;
+    const {state, currentAction, currentPlayer, cardId, category} = this.validateInput(context);
 
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    const cardId = currentAction.payload.cardId as string;
-    const category = currentAction.payload.category as Category;
-    
-    // カードがカテゴリに属しているか確認
-    if (!currentCard.hasCategory(category)) {
-      throw new Error(`Card ${currentCard.id} does not have category ${category}`);
-    }
-    
     // プレイヤーの手札からカードを削除
     const removedCard = currentPlayer.removeCardFromHand(cardId);
-    if (!removedCard) {
-      throw new Error(`Card with id ${cardId} not found in player's hand`);
-    }
-    
+
     // カードを仕事場に配置し、元々あったカードを取得
-    const previousCard = state.placeCardInWorkplace(currentCard, category);
+    const previousCard = state.placeCardInWorkplaceMUTING(removedCard, category);
     
     // リソースの増減処理
-    const resourceChange = currentCard.situationEffect;
-    const actualChange = state.modifyResources(resourceChange);
-    
+    const resourceChange = removedCard.situationEffect;
+    const actualChange = state.modifyResourcesMUTING(resourceChange);
+
     // リソース変更イベントを記録
     if (actualChange !== 0) {
-      state.addEvent({
+      state.addEventMUTING({
         type: GameEventType.ResourceChanged,
         timestamp: Date.now(),
         data: {
           oldValue: state.resources - actualChange,
           newValue: state.resources,
           change: actualChange,
-          reason: `カード配置: ${currentCard.name}`
+          reason: `カード配置: ${removedCard.name}`
         }
       });
     }
     
     // カード配置イベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.CardPlaced,
       timestamp: Date.now(),
       data: {
         playerId: currentPlayer.id,
         playerName: currentPlayer.name,
         playerIndex: state.currentPlayerIndex,
-        cardId: currentCard.id,
-        cardName: currentCard.name,
+        cardId: removedCard.id,
+        cardName: removedCard.name,
         category: category,
         previousCardId: previousCard?.id,
         previousCardName: previousCard?.name
@@ -166,10 +150,10 @@ export class PlaceCardRule implements GameRule {
           const cost = previousCard.situationEffect;
           if (state.resources >= cost) {
             // リソースを支払う
-            state.modifyResources(-cost);
-            
+            state.modifyResourcesMUTING(-cost);
+
             // リソース変更イベントを記録
-            state.addEvent({
+            state.addEventMUTING({
               type: GameEventType.ResourceChanged,
               timestamp: Date.now(),
               data: {
@@ -181,14 +165,14 @@ export class PlaceCardRule implements GameRule {
             });
             
             // カードを完成品レーンに移動
-            state.moveCardToCompletionLane(previousCard);
+            state.moveCardToCompletionLaneMUTING(previousCard);
           } else {
             // リソースが足りない場合は捨て札に
-            state.discardCards([previousCard]);
+            state.discardCardsMUTING([previousCard]);
           }
         } else {
           // トラブルカードや中立カードはコストなしでレーンに移動
-          state.moveCardToCompletionLane(previousCard);
+          state.moveCardToCompletionLaneMUTING(previousCard);
         }
       } else if (pushOutOption === 'discard') {
         // 押し出し（捨てる）
@@ -197,10 +181,10 @@ export class PlaceCardRule implements GameRule {
           const cost = Math.abs(previousCard.situationEffect);
           if (state.resources >= cost) {
             // リソースを支払う
-            state.modifyResources(-cost);
-            
+            state.modifyResourcesMUTING(-cost);
+
             // リソース変更イベントを記録
-            state.addEvent({
+            state.addEventMUTING({
               type: GameEventType.ResourceChanged,
               timestamp: Date.now(),
               data: {
@@ -212,17 +196,34 @@ export class PlaceCardRule implements GameRule {
             });
             
             // カードを捨て札に加える
-            state.discardCards([previousCard]);
+            state.discardCardsMUTING([previousCard]);
           } else {
             // リソースが足りない場合はレーンに移動
-            state.moveCardToCompletionLane(previousCard);
+            state.moveCardToCompletionLaneMUTING(previousCard);
           }
         } else {
           // リソースカードや中立カードは捨て札に
-          state.discardCards([previousCard]);
+          state.discardCardsMUTING([previousCard]);
         }
       }
     }
+  }
+
+  private validateInput(context: GameContext) {
+    const {state, currentCard, currentAction} = context;
+    // currentCardは指定してはならない。currentAction.cardIdのカードを配置する
+    if (currentCard) {
+      throw new Error('currentCard must not be specified for PlaceCard action');
+    }
+
+    if (!currentAction) {
+      throw new Error('currentAction must be specified for PlaceCard action');
+    }
+
+    const currentPlayer = state.players[state.currentPlayerIndex];
+    const cardId = currentAction.payload.cardId as string;
+    const category = currentAction.payload.category as Category;
+    return {state, currentAction, currentPlayer, cardId, category};
   }
 }
 
@@ -257,16 +258,13 @@ export class DiscardCardRule implements GameRule {
     const cardId = currentAction.payload.cardId as string;
     
     // プレイヤーの手札からカードを削除
-    const removedCard = currentPlayer.removeCardFromHand(cardId);
-    if (!removedCard) {
-      throw new Error(`Card with id ${cardId} not found in player's hand`);
-    }
-    
+    currentPlayer.removeCardFromHand(cardId);
+
     // カードを捨て札に加える
-    state.discardCards([currentCard]);
+    state.discardCardsMUTING([currentCard]);
     
     // カード捨てイベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.CardDiscarded,
       timestamp: Date.now(),
       data: {

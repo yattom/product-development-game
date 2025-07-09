@@ -1,8 +1,6 @@
 import { Card } from '../models/card';
 import { Player } from '../models/player';
 import { GameState } from '../models/gameState';
-import { VictoryCondition } from '../models/victoryCondition';
-import { DefeatCondition } from '../models/defeatCondition';
 
 /**
  * ルールの種類を定義するenum
@@ -27,13 +25,13 @@ export interface GameRule {
   name: string;
   description: string;
   type: RuleType;
-  
+
   /**
    * ルールを適用する
    * @param context ゲームコンテキスト
    */
   apply(context: GameContext): void;
-  
+
   /**
    * 現在のコンテキストでこのルールが適用可能かどうかを判断する
    * @param context ゲームコンテキスト
@@ -133,6 +131,24 @@ export enum Category {
  * プレイ効果
  */
 export interface PlayEffect {
+  ruleId: string;
+  params: Record<string, any>;
+  description: string;
+}
+
+/**
+ * 勝利条件インターフェース
+ */
+export interface VictoryCondition {
+  ruleId: string;
+  params: Record<string, any>;
+  description: string;
+}
+
+/**
+ * 敗北条件インターフェース
+ */
+export interface DefeatCondition {
   ruleId: string;
   params: Record<string, any>;
   description: string;

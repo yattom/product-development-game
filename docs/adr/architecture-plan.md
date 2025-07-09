@@ -1,4 +1,4 @@
-# プロジェクト・カオス TypeScript実装計画
+# プロジェクト・カオス アーキテクチャ計画
 
 ## 1. プラグ可能なルールシステムのアーキテクチャ
 
@@ -6,41 +6,43 @@
 ```typescript
 // ルールプラグインのインターフェース
 interface GameRule {
-  id: string;
-  name: string;
-  description: string;
-  type: RuleType;
-  apply(context: GameContext): void;
-  isApplicable(context: GameContext): boolean;
+    id: string;
+    name: string;
+    description: string;
+    type: RuleType;
+
+    apply(context: GameContext): void;
+
+    isApplicable(context: GameContext): boolean;
 }
 
 // ルールの種類
 enum RuleType {
-  Setup,           // ゲーム準備ルール
-  TurnFlow,        // ターン進行ルール
-  ActionRule,      // アクション実行ルール
-  ResourceRule,    // リソース管理ルール
-  ChaosRule,       // 混沌関連ルール
-  VictoryRule,     // 勝利条件ルール
-  DefeatRule,      // 敗北条件ルール
-  CardEffect,      // カード効果ルール
+    Setup,           // ゲーム準備ルール
+    TurnFlow,        // ターン進行ルール
+    ActionRule,      // アクション実行ルール
+    ResourceRule,    // リソース管理ルール
+    ChaosRule,       // 混沌関連ルール
+    VictoryRule,     // 勝利条件ルール
+    DefeatRule,      // 敗北条件ルール
+    CardEffect,      // カード効果ルール
 }
 
 // ルールコンテキスト
 interface GameContext {
-  state: GameState;
-  currentAction?: Action;
-  currentCard?: Card;
-  currentPlayer?: Player;
-  metadata: Record<string, any>;
+    state: GameState;
+    currentAction?: Action;
+    currentCard?: Card;
+    currentPlayer?: Player;
+    metadata: Record<string, any>;
 }
 
 // ルールセット
 interface RuleSet {
-  id: string;
-  name: string;
-  description: string;
-  rules: GameRule[];
+    id: string;
+    name: string;
+    description: string;
+    rules: GameRule[];
 }
 ```
 
@@ -222,93 +224,3 @@ class GameEngine {
   // その他のメソッド...
 }
 ```
-
-## 5. 実装順序
-
-1. **ルールシステム基盤の構築**
-   - ルールインターフェースとコンテキスト
-   - ルール登録と適用のメカニズム
-   - イベントシステム
-
-2. **基本ゲームエンジンの実装**
-   - 状態管理
-   - アクション処理
-   - ルール適用フロー
-
-3. **標準ルールセットの実装**
-   - セットアップルール
-   - ターンフロールール
-   - アクションルール
-   - リソース管理ルール
-   - 混沌ルール
-   - 勝利/敗北条件ルール
-
-4. **カードシステムの実装**
-   - カードデータ構造
-   - カード効果ルール
-   - デッキと手札の管理
-
-5. **ゲーム進行フローの実装**
-   - プレイヤーターン管理
-   - アクション実行
-   - ゲーム終了条件
-
-## 6. ディレクトリ構造
-
-```
-src/
-├── core/
-│   ├── engine.ts       // ゲームエンジン
-│   ├── state.ts        // 状態管理
-│   ├── events.ts       // イベントシステム
-│   └── actions.ts      // アクション定義
-├── rules/
-│   ├── interfaces.ts   // ルールインターフェース
-│   ├── registry.ts     // ルール登録機構
-│   ├── standard/       // 標準ルールセット
-│   │   ├── setup.ts
-│   │   ├── turnFlow.ts
-│   │   ├── actions.ts
-│   │   ├── resources.ts
-│   │   ├── chaos.ts
-│   │   └── victory.ts
-│   └── variants/       // バリアントルール
-├── models/
-│   ├── card.ts
-│   ├── player.ts
-│   └── ruleSet.ts
-├── effects/
-│   └── cardEffects.ts  // カード効果実装
-├── utils/
-│   ├── random.ts
-│   └── serialization.ts
-└── index.ts            // エントリーポイント
-```
-
-## 7. テスト戦略
-
-- **ルールのユニットテスト:** 各ルールを個別にテスト
-- **ルールセットの統合テスト:** ルールの組み合わせをテスト
-- **ゲームフローテスト:** 完全なゲームプレイをシミュレート
-- **バリアントテスト:** 異なるルールセットでのゲーム動作を検証
-- **エッジケーステスト:** 極端なゲーム状態でのルール適用をテスト
-
-## 8. カスタマイズと拡張性
-
-1. **新規ルールの追加方法**
-   - 新しいルールクラスを実装
-   - ルールレジストリに登録
-   - 既存または新規ルールセットに追加
-
-2. **ルールバリアントの作成**
-   - 標準ルールの一部を置換または拡張
-   - 新しいルールセットとして定義
-   - ゲーム開始時に適用
-
-3. **難易度調整**
-   - 特定のルールパラメータを調整
-   - 勝利/敗北条件を変更するルールを追加
-
-4. **拡張パック対応**
-   - 新カテゴリ、効果、ルールを追加
-   - 既存ルールとの互換性を維持

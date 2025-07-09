@@ -2,6 +2,7 @@ import { ActionType, GameContext, GameRule, RuleType } from '../interfaces';
 import { Card } from '../../models/card';
 import { VictoryCondition, VictoryConditionType } from '../../models/victoryCondition';
 import { DefeatCondition, DefeatConditionType } from '../../models/defeatCondition';
+import { GameState } from '../../models/gameState';
 
 /**
  * 標準ゲームセットアップルール
@@ -48,7 +49,7 @@ export class StandardSetupRule implements GameRule {
     // （GameStateのコンストラクタで既に0に初期化されているため、ここでは何もしない）
 
     // 状態のメタデータを初期化
-    state.setMetadata('roundsSinceChaosModified', 0);
+    state.setMetadataMUTING('roundsSinceChaosModified', 0);
   }
 
   /**
@@ -67,34 +68,34 @@ export class StandardSetupRule implements GameRule {
    * 勝利条件を設定する
    * @param state ゲーム状態
    */
-  private setupVictoryConditions(state: any): void {
+  private setupVictoryConditions(state: GameState): void {
     // 今回のゲームで使用する勝利条件をランダムに選択
     const victoryTypes = [
       VictoryConditionType.BalancedProduct,
       VictoryConditionType.WorldChangingInnovation,
       VictoryConditionType.FireExtinguishing
     ];
-    
+
     const selectedType = victoryTypes[Math.floor(Math.random() * victoryTypes.length)];
     const victoryCondition = VictoryCondition.createStandard(selectedType);
-    
+
     // 勝利条件をゲーム状態に設定
-    state.victoryConditions = [victoryCondition];
+    state.setVictoryConditionsMUTING([victoryCondition]);
   }
 
   /**
    * 敗北条件を設定する
    * @param state ゲーム状態
    */
-  private setupDefeatConditions(state: any): void {
+  private setupDefeatConditions(state: GameState): void {
     // 標準の敗北条件を全て設定
     const defeatConditions = [
       DefeatCondition.createStandard(DefeatConditionType.DeckDepletion),
       DefeatCondition.createStandard(DefeatConditionType.ChaosOverflow),
       DefeatCondition.createStandard(DefeatConditionType.StagnationPenalty)
     ];
-    
+
     // 敗北条件をゲーム状態に設定
-    state.defeatConditions = defeatConditions;
+    state.setDefeatConditionsMUTING(defeatConditions);
   }
 }

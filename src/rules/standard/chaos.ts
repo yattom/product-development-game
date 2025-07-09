@@ -1,4 +1,4 @@
-import { ActionType, GameContext, GameEventType, GameRule, RuleType } from '../interfaces';
+import {ActionType, GameContext, GameEventType, GameRule, RuleType} from '../interfaces';
 
 /**
  * 混沌レベル2の効果ルール
@@ -43,7 +43,7 @@ export class ChaosLevel2Rule implements GameRule {
     currentPlayer.addCardToHand(drawnCard);
     
     // カードを引いたイベントを記録
-    state.addEvent({
+    state.addEventMUTING({
       type: GameEventType.CardDrawn,
       timestamp: Date.now(),
       data: {
@@ -65,10 +65,10 @@ export class ChaosLevel2Rule implements GameRule {
       
       if (discardedCard) {
         // カードを捨て札に加える
-        state.discardCards([discardedCard]);
+        state.discardCardsMUTING([discardedCard]);
         
         // カードを捨てたイベントを記録
-        state.addEvent({
+        state.addEventMUTING({
           type: GameEventType.CardDiscarded,
           timestamp: Date.now(),
           data: {
@@ -126,7 +126,7 @@ export class ChaosLevel3Rule implements GameRule {
     // 引いたカードを即座にプレイ
     for (const card of drawnCards) {
       // カードを引いたイベントを記録
-      state.addEvent({
+      state.addEventMUTING({
         type: GameEventType.CardDrawn,
         timestamp: Date.now(),
         data: {
@@ -144,7 +144,7 @@ export class ChaosLevel3Rule implements GameRule {
         const effectRuleId = card.playEffect.ruleId;
         
         // カードプレイイベントを記録
-        state.addEvent({
+        state.addEventMUTING({
           type: GameEventType.CardPlayed,
           timestamp: Date.now(),
           data: {
@@ -174,7 +174,7 @@ export class ChaosLevel3Rule implements GameRule {
       }
       
       // カードを捨て札に加える
-      state.discardCards([card]);
+      state.discardCardsMUTING([card]);
     }
   }
 }
@@ -203,24 +203,21 @@ export class ModifyChaosLevelRule implements GameRule {
    * @param context ゲームコンテキスト
    */
   apply(context: GameContext): void {
-    const { state, currentAction } = context;
-    if (!currentAction) return;
+    const {state, metadata, currentAction, currentPlayer} = context;
+    if (!currentAction || !currentPlayer) return;
 
-    const delta = currentAction.payload.delta as number;
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    
-    // 混沌レベルを変更する前の値を保存
+    const delta = metadata.effectParams?.delta as number;
     const oldChaosLevel = state.chaosLevel;
-    
-    // 混沌レベルを変更
-    const actualChange = state.modifyChaosLevel(delta, state.currentPlayerIndex);
-    
+
+    const actualChange = state.modifyChaosLevelMUTING(delta, state.currentPlayerIndex);
+
+    // イベントを記録
     if (actualChange !== 0) {
       // 混沌レベルが変更された場合、メタデータをリセット
-      state.setMetadata('roundsSinceChaosModified', 0);
+      state.setMetadataMUTING('roundsSinceChaosModified', 0);
       
       // 混沌レベル変更イベントを記録
-      state.addEvent({
+      state.addEventMUTING({
         type: GameEventType.ChaosChanged,
         timestamp: Date.now(),
         data: {
@@ -238,7 +235,7 @@ export class ModifyChaosLevelRule implements GameRule {
       // 混沌レベルが3の状態でさらに増やそうとした場合
       if (oldChaosLevel === 3 && delta > 0) {
         // オーバーフローイベントを記録
-        state.addEvent({
+        state.addEventMUTING({
           type: GameEventType.DefeatTriggered,
           timestamp: Date.now(),
           data: {

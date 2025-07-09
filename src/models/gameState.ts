@@ -1,12 +1,8 @@
-import { 
-  Category, 
-  GameEvent, 
-  RuleSet
-} from '../rules/interfaces';
-import { VictoryCondition } from './victoryCondition';
-import { DefeatCondition } from './defeatCondition';
-import { Card } from './card';
-import { Player } from './player';
+import {Category, GameEvent, RuleSet} from '../rules/interfaces';
+import {VictoryCondition} from './victoryCondition';
+import {DefeatCondition} from './defeatCondition';
+import {Card} from './card';
+import {Player} from './player';
 
 /**
  * ゲーム状態クラス
@@ -196,22 +192,47 @@ export class GameState {
   // セッター＆メソッド
 
   /**
-   * 現在のプレイヤーインデックスを設定する
-   */
-  setCurrentPlayerIndex(index: number): void {
-    if (index < 0 || index >= this._players.length) {
-      throw new Error(`Invalid player index: ${index}`);
-    }
-    this._currentPlayerIndex = index;
-  }
-
-  /**
    * 次のプレイヤーに順番を移す
    * @returns 新しい現在プレイヤーのインデックス
    */
-  moveToNextPlayer(): number {
+  moveToNextPlayerMUTING(): number {
     this._currentPlayerIndex = (this._currentPlayerIndex + 1) % this._players.length;
     return this._currentPlayerIndex;
+  }
+
+  /**
+   * 現在のGameStateから、指定した差分だけを上書きした新しいGameStateを返す（イミュータブル）
+   * @param updates 差分となるプロパティ群
+   * @returns 新しいGameStateインスタンス
+   */
+  newState(updates: Partial<ConstructorParameters<typeof GameState>[0]>): GameState {
+    return new GameState({
+      players: this._players,
+      currentPlayerIndex: this._currentPlayerIndex,
+      deck: this._deck,
+      discard: this._discard,
+      workplaces: this._workplaces,
+      completionLane: this._completionLane,
+      chaosLevel: this._chaosLevel,
+      resources: this._resources,
+      activeRuleSet: this._activeRuleSet,
+      victoryConditions: this._victoryConditions,
+      defeatConditions: this._defeatConditions,
+      lastChaosModifierPlayer: this._lastChaosModifierPlayer,
+      chaosNotModifiedForFullRound: this._chaosNotModifiedForFullRound,
+      eventHistory: this._eventHistory,
+      metadata: this._metadata,
+      ...updates,
+    });
+  }
+
+  /**
+   * 次のプレイヤーに順番を移す（イミュータブル版・一時的にmoveToNextPlayerXXXという名前で追加）
+   * @returns 新しいGameStateインスタンス
+   */
+  moveToNextPlayer(): GameState {
+    const nextIndex = (this._currentPlayerIndex + 1) % this._players.length;
+    return this.newState({currentPlayerIndex: nextIndex});
   }
 
   /**
@@ -250,8 +271,17 @@ export class GameState {
    * カードを捨て札に加える
    * @param cards 捨て札に加えるカード
    */
-  discardCards(cards: Card[]): void {
+  discardCardsMUTING(cards: Card[]): void {
     this._discard.push(...cards);
+  }
+
+  /**
+   * カードを捨て札に加える（イミュータブル版）
+   * @param cards 捨て札に加えるカード
+   * @returns 新しいGameStateインスタンス
+   */
+  discardCards(cards: Card[]): GameState {
+    return this.newState({discard: [...this._discard, ...cards]});
   }
 
   /**
@@ -274,7 +304,7 @@ export class GameState {
    * @param category 配置するカテゴリ
    * @returns 元々あったカード（あれば）
    */
-  placeCardInWorkplace(card: Card, category: Category): Card | null {
+  placeCardInWorkplaceMUTING(card: Card, category: Category): Card | null {
     if (!card.hasCategory(category)) {
       throw new Error(`Card ${card.id} does not have category ${category}`);
     }
@@ -285,11 +315,37 @@ export class GameState {
   }
 
   /**
+   * カードを仕事場に配置する
+   * @param card 配置するカード
+   * @param category 配置するカテゴリ
+   * @returns 更新されたGameState
+   */
+  placeCardInWorkplace(card: Card, category: Category): { previousCard: Card | null, state: GameState } {
+    if (!card.hasCategory(category)) {
+      throw new Error(`Card ${card.id} does not have category ${category}`);
+    }
+
+    const previousCard = this._workplaces[category];
+    const workplaces = {...this._workplaces}
+    workplaces[category] = card;
+    return {previousCard, state: this.newState({workplaces})};
+  }
+
+  /**
    * カードを完成品レーンに移動する
    * @param card 移動するカード
    */
-  moveCardToCompletionLane(card: Card): void {
+  moveCardToCompletionLaneMUTING(card: Card): void {
     this._completionLane.push(card);
+  }
+
+  /**
+   * カードを完成品レーンに移動する（イミュータブル版）
+   * @param card 移動するカード
+   * @returns 新しいGameStateインスタンス
+   */
+  moveCardToCompletionLane(card: Card): GameState {
+    return this.newState({completionLane: [...this._completionLane, card]});
   }
 
   /**
@@ -297,10 +353,20 @@ export class GameState {
    * @param delta 変更量（正の値で増加、負の値で減少）
    * @returns 実際に変更された量
    */
-  modifyResources(delta: number): number {
+  modifyResourcesMUTING(delta: number): number {
     const oldResources = this._resources;
     this._resources = Math.max(0, Math.min(3, this._resources + delta));
     return this._resources - oldResources;
+  }
+
+  /**
+   * リソースを変更する（イミュータブル版）
+   * @param delta 変更量（正の値で増加、負の値で減少）
+   * @returns 新しいGameStateインスタンス
+   */
+  modifyResources(delta: number): GameState {
+    const newResources = Math.max(0, Math.min(3, this._resources + delta));
+    return this.newState({resources: newResources});
   }
 
   /**
@@ -309,7 +375,7 @@ export class GameState {
    * @param playerIndex 変更したプレイヤーのインデックス
    * @returns 実際に変更された量
    */
-  modifyChaosLevel(delta: number, playerIndex: number): number {
+  modifyChaosLevelMUTING(delta: number, playerIndex: number): number {
     const oldChaosLevel = this._chaosLevel;
     this._chaosLevel = Math.max(0, Math.min(3, this._chaosLevel + delta));
 
@@ -322,18 +388,47 @@ export class GameState {
   }
 
   /**
+   * 混沌レベルを変更する（イミュータブル版）
+   * @param delta 変更量（正の値で増加、負の値で減少）
+   * @param playerIndex 変更したプレイヤーのインデックス
+   * @returns 新しいGameStateインスタンス
+   */
+  modifyChaosLevel(delta: number, playerIndex: number): GameState {
+    const newChaosLevel = Math.max(0, Math.min(3, this._chaosLevel + delta));
+
+    const updates: Partial<ConstructorParameters<typeof GameState>[0]> = {
+      chaosLevel: newChaosLevel,
+    };
+
+    if (delta !== 0) {
+      updates.lastChaosModifierPlayer = playerIndex;
+      updates.chaosNotModifiedForFullRound = false;
+    }
+
+    return this.newState(updates);
+  }
+
+  /**
    * 1ラウンドの間に混沌レベルが変更されなかったフラグを設定する
    */
-  setChaosNotModifiedForFullRound(value: boolean): void {
-    this._chaosNotModifiedForFullRound = value;
+  setChaosNotModifiedForFullRound(value: boolean): GameState {
+    return this.newState({chaosNotModifiedForFullRound: value});
   }
 
   /**
    * イベントを履歴に追加する
    * @param event 追加するイベント
    */
-  addEvent(event: GameEvent): void {
+  addEventMUTING(event: GameEvent): void {
     this._eventHistory.push(event);
+  }
+
+  /**
+   * イベントを履歴に追加する
+   * @param event 追加するイベント
+   */
+  addEvent(event: GameEvent): GameState {
+    return this.newState({eventHistory: [...this._eventHistory, event]});
   }
 
   /**
@@ -341,8 +436,18 @@ export class GameState {
    * @param key メタデータのキー
    * @param value メタデータの値
    */
-  setMetadata(key: string, value: any): void {
+  setMetadataMUTING(key: string, value: any): void {
     this._metadata[key] = value;
+  }
+
+  /**
+   * メタデータを設定する
+   * @param key メタデータのキー
+   * @param value メタデータの値
+   */
+  setMetadata(key: string, value: any): GameState {
+    const newMetadata = { ...this._metadata, [key]: value };
+    return this.newState({ metadata: newMetadata });
   }
 
   /**
@@ -355,30 +460,48 @@ export class GameState {
   }
 
   /**
-   * ゲーム状態のクローンを作成する
-   * 主にテスト用
+   * 勝利条件を設定する
+   * @param conditions 設定する勝利条件の配列
    */
-  clone(): GameState {
-    return new GameState({
-      players: this._players.map(player => player.clone()),
-      currentPlayerIndex: this._currentPlayerIndex,
-      deck: this._deck.map(card => card.clone()),
-      discard: this._discard.map(card => card.clone()),
-      workplaces: {
-        [Category.Technology]: this._workplaces[Category.Technology]?.clone() ?? null,
-        [Category.User]: this._workplaces[Category.User]?.clone() ?? null,
-        [Category.Management]: this._workplaces[Category.Management]?.clone() ?? null
-      },
-      completionLane: this._completionLane.map(card => card.clone()),
-      chaosLevel: this._chaosLevel,
-      resources: this._resources,
-      activeRuleSet: this._activeRuleSet,
-      victoryConditions: [...this._victoryConditions],
-      defeatConditions: [...this._defeatConditions],
-      lastChaosModifierPlayer: this._lastChaosModifierPlayer,
-      chaosNotModifiedForFullRound: this._chaosNotModifiedForFullRound,
-      eventHistory: [...this._eventHistory],
-      metadata: { ...this._metadata }
-    });
+  setVictoryConditionsMUTING(conditions: VictoryCondition[]): void {
+    this._victoryConditions = [...conditions];
+  }
+
+  /**
+   * 勝利条件を設定する（イミュータブル版）
+   * @param conditions 設定する勝利条件の配列
+   * @returns 新しいGameStateインスタンス
+   */
+  setVictoryConditions(conditions: VictoryCondition[]): GameState {
+    return this.newState({victoryConditions: [...conditions]});
+  }
+
+  /**
+   * 敗北条件を設定する
+   * @param conditions 設定する敗北条件の配列
+   */
+  setDefeatConditionsMUTING(conditions: DefeatCondition[]): void {
+    this._defeatConditions = [...conditions];
+  }
+
+  /**
+   * 敗北条件を設定する（イミュータブル版）
+   * @param conditions 設定する敗北条件の配列
+   * @returns 新しいGameStateインスタンス
+   */
+  setDefeatConditions(conditions: DefeatCondition[]): GameState {
+    return this.newState({defeatConditions: [...conditions]});
+  }
+
+  /**
+   * 現在のプレイヤーインデックスを設定する（イミュータブル版）
+   * @param index 設定するインデックス
+   * @returns 新しいGameStateインスタンス
+   */
+  setCurrentPlayerIndex(index: number): GameState {
+    if (index < 0 || index >= this._players.length) {
+      throw new Error(`Invalid player index: ${index}`);
+    }
+    return this.newState({currentPlayerIndex: index});
   }
 }
