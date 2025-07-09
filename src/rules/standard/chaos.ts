@@ -31,7 +31,7 @@ export class ChaosLevel2Rule implements GameRule {
     const currentPlayer = state.players[state.currentPlayerIndex];
     
     // 山札から1枚引く
-    const drawnCards = state.drawCards(1);
+    const drawnCards = state.drawCardsMUTING(1);
     if (drawnCards.length === 0) {
       // 山札が空の場合は処理終了
       return;
@@ -117,7 +117,7 @@ export class ChaosLevel3Rule implements GameRule {
     const { state } = context;
     
     // 山札から2枚引く
-    const drawnCards = state.drawCards(2);
+    const drawnCards = state.drawCardsMUTING(2);
     if (drawnCards.length === 0) {
       // 山札が空の場合は処理終了
       return;

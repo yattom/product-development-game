@@ -216,5 +216,41 @@ describe('GameState', () => {
                 expect(state.defeatConditions).toEqual(originalConditions);
             });
         });
+
+        describe('drawCards', () => {
+            it('指定した枚数のカードを引いて、新しいGameStateを返す', () => {
+                const card1 = createTestCard();
+                const card2 = createTestCard();
+                const card3 = createTestCard();
+                const state = createTestGameState({
+                    deck: [card1, card2, card3],
+                    discard: [],
+                });
+                
+                const result = state.drawCards(2);
+                
+                expect(result.state).not.toBe(state);
+                expect(result.drawnCards).toEqual([card3, card2]); // 後ろから取る
+                expect(result.state.deck).toEqual([card1]);
+                expect(state.deck).toEqual([card1, card2, card3]); // 元の状態は変更されない
+            });
+            
+            it('山札がなくなったら捨て札をシャッフルして山札に戻す', () => {
+                const card1 = createTestCard();
+                const card2 = createTestCard();
+                const card3 = createTestCard();
+                const state = createTestGameState({
+                    deck: [card1],
+                    discard: [card2, card3],
+                });
+                
+                const result = state.drawCards(2);
+                
+                expect(result.drawnCards).toHaveLength(2);
+                expect(result.drawnCards).toContain(card1);
+                expect(result.state.discard).toEqual([]);
+                expect(result.state.deck).toHaveLength(1); // 残り1枚
+            });
+        });
     });
 });

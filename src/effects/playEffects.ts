@@ -236,7 +236,7 @@ export class DrawCardsEffectRule implements GameRule {
     if (count <= 0) return;
     
     // 山札からカードを引く
-    const drawnCards = state.drawCards(count);
+    const drawnCards = state.drawCardsMUTING(count);
     
     // 引いたカードを手札に加える
     drawnCards.forEach(card => {

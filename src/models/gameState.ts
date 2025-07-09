@@ -236,11 +236,11 @@ export class GameState {
   }
 
   /**
-   * 山札からカードを引く
+   * 山札からカードを引く（ミュータブル版）
    * @param count 引くカードの枚数
    * @returns 引いたカードの配列
    */
-  drawCards(count: number): Card[] {
+  drawCardsMUTING(count: number): Card[] {
     if (count <= 0) {
       return [];
     }
@@ -265,6 +265,43 @@ export class GameState {
     }
 
     return drawnCards;
+  }
+
+  /**
+   * 山札からカードを引く（イミュータブル版）
+   * @param count 引くカードの枚数
+   * @returns 引いたカードと新しいGameState
+   */
+  drawCards(count: number): { drawnCards: Card[], state: GameState } {
+    if (count <= 0) {
+      return { drawnCards: [], state: this };
+    }
+
+    const drawnCards: Card[] = [];
+    let deck = [...this._deck];
+    let discard = [...this._discard];
+
+    for (let i = 0; i < count; i++) {
+      if (deck.length === 0) {
+        // 山札が尽きた場合、必要に応じて捨て札を山札に戻す
+        if (discard.length === 0) {
+          break; // 捨て札もない場合は終了
+        }
+
+        // 捨て札をシャッフルして山札にする
+        deck = this.shuffle([...discard]);
+        discard = [];
+      }
+
+      // カードを1枚引く
+      const card = deck.pop()!;
+      drawnCards.push(card);
+    }
+
+    return {
+      drawnCards,
+      state: this.newState({ deck, discard })
+    };
   }
 
   /**
