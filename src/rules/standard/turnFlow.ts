@@ -164,7 +164,7 @@ export class StandardDrawRule implements GameRule {
       return;
     }
 
-    const drawnCards = state.drawCards(cardsToDrawCount);
+    const drawnCards = state.drawCardsMUTING(cardsToDrawCount);
 
     // カードを引いたイベントを記録
     drawnCards.forEach(card => {
