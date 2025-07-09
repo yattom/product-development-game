@@ -2,22 +2,22 @@
 
 ## TODO
 
-- いくつかのルールについて働きをテストで確認しながらリファクタリングする
-  - セットアップルール
-  - ターンフロールール
-  - リソース管理ルール
-  - 混沌ルール
-- GameState.drawCards()が勝手に捨て札を使わないよう修正
+- GameStateをイミュータブルにする
+  - ルールシステムをTDDでイミュータブル対応する
+    - 各ルールのテストを書く
+    - ルールがGameStateを返すよう修正
+    - 順序：StandardSetupRule → StandardTurnFlowRule → StandardActionsRule → StandardResourcesRule → StandardChaosRule → StandardVictoryRule
+  - その他のコンポーネントをイミュータブル対応する
+    - PlayEffectsのテストを書く
+    - PlayEffectsをイミュータブル対応
+    - GameEngineのテストを書く
+    - GameEngineをイミュータブル対応
+  - 最後にクリーンアップ
+    - MUTINGメソッドを削除する
+    - GameStateの各プロパティをreadonly化
+  - 不変化の恩恵を活かす仕組み（undo/redoや履歴管理など）の検討
 - PlaceCardRule.apply()で、置き場のカードの処理をそれぞれ分離する
 - 分離したものをさらにルールとして使えるようにする
-- GameStateをイミュータブルにする
-  - すべてのメソッドが完了したら、以下の作業に進む
-    - GameStateの各プロパティをreadonly化
-    - 主要な操作（カードを引く・置く・リソース操作など）ごとに個別にイミュータブル対応
-    - 既存のルール・エフェクト処理が新しいGameStateを返すよう修正
-    - MUTINGがついているメソッドを置き換えていく
-    - テストケースの修正・追加（イミュータブル性の検証）
-    - 不変化の恩恵を活かす仕組み（undo/redoや履歴管理など）の検討
 - ゲームの初期化がGameContextのコンストラクタとSetupRuleに分かれてしまっているのは統合したい
 
 ## 済み
@@ -40,6 +40,8 @@
     - setVictoryConditions
     - setDefeatConditions
     - clone
+    - drawCards（イミュータブル版実装済み）
+  - MUTINGメソッドの使用箇所を特定完了（約60箇所）
 
 
 1. **ルールシステム基盤の構築**
