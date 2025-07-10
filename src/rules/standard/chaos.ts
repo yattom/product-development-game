@@ -40,7 +40,7 @@ export class ChaosLevel2Rule implements GameRule {
     const drawnCard = drawnCards[0];
     
     // 引いたカードを手札に加える
-    currentPlayer.addCardToHand(drawnCard);
+    currentPlayer.addCardToHandMUTING(drawnCard);
     
     // カードを引いたイベントを記録
     state.addEventMUTING({
@@ -61,7 +61,7 @@ export class ChaosLevel2Rule implements GameRule {
     // 現在のコンテキストでは選択ロジックが含まれていないため、仮に最初のカードを捨てる
     if (currentPlayer.getHandSize() > 0) {
       const cardToDiscard = currentPlayer.hand[0];
-      const discardedCard = currentPlayer.removeCardFromHandByIndex(0);
+      const discardedCard = currentPlayer.removeCardFromHandMUTING(currentPlayer.hand[0].id);
       
       if (discardedCard) {
         // カードを捨て札に加える

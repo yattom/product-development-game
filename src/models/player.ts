@@ -47,19 +47,30 @@ export class Player {
   }
 
   /**
-   * プレイヤーの手札にカードを追加する
+   * プレイヤーの手札にカードを追加する（旧版・ミューテーション）
    * @param card 追加するカード
    */
-  addCardToHand(card: Card): void {
+  addCardToHandMUTING(card: Card): void {
     this._hand.push(card);
   }
 
   /**
-   * プレイヤーの手札からカードを削除する
+   * プレイヤーの手札にカードを追加する（イミュータブル版）
+   * @param card 追加するカード
+   * @returns 新しいPlayerインスタンス
+   */
+  addCardToHand(card: Card): Player {
+    return this.newPlayer({
+      hand: [...this._hand, card]
+    });
+  }
+
+  /**
+   * プレイヤーの手札からカードを削除する（旧版・ミューテーション）
    * @param cardId 削除するカードのID
    * @returns 削除されたカード、見つからない場合はundefined
    */
-  removeCardFromHand(cardId: string): Card {
+  removeCardFromHandMUTING(cardId: string): Card {
     const index = this._hand.findIndex(card => card.id === cardId);
     if (index === -1) {
       throw new Error(`Card with id ${cardId} not found in player's hand`);
@@ -68,15 +79,23 @@ export class Player {
   }
 
   /**
-   * プレイヤーの手札からカードを指定のインデックスで削除する
-   * @param index 削除するカードのインデックス
-   * @returns 削除されたカード、インデックスが無効な場合はundefined
+   * プレイヤーの手札からカードを削除する（イミュータブル版）
+   * @param cardId 削除するカードのID
+   * @returns 新しいPlayerインスタンスと削除されたカード
    */
-  removeCardFromHandByIndex(index: number): Card | undefined {
-    if (index < 0 || index >= this._hand.length) {
-      return undefined;
+  removeCardFromHand(cardId: string): { newPlayer: Player; removedCard: Card } {
+    const index = this._hand.findIndex(card => card.id === cardId);
+    if (index === -1) {
+      throw new Error(`Card with id ${cardId} not found in player's hand`);
     }
-    return this._hand.splice(index, 1)[0];
+    const removedCard = this._hand[index];
+    const newHand = this._hand.filter((_, i) => i !== index);
+    
+    const newPlayer = this.newPlayer({
+      hand: newHand
+    });
+    
+    return { newPlayer, removedCard };
   }
 
   /**
@@ -114,6 +133,23 @@ export class Player {
       name: this.name,
       hand: this._hand.map(card => card.clone()),
       metadata: { ...this._metadata }
+    });
+  }
+
+  /**
+   * 新しいPlayerインスタンスを作成する（イミュータブル版）
+   * @param updates 更新するプロパティ
+   * @returns 新しいPlayerインスタンス
+   */
+  newPlayer(updates: Partial<{
+    hand: Card[];
+    metadata: Record<string, any>;
+  }>): Player {
+    return new Player({
+      id: this.id,
+      name: this.name,
+      hand: updates.hand !== undefined ? updates.hand : this._hand,
+      metadata: updates.metadata !== undefined ? updates.metadata : this._metadata
     });
   }
 }

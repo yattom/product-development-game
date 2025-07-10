@@ -37,7 +37,7 @@ export class StandardSetupRule implements GameRule {
     // 各プレイヤーに手札を配る（3枚ずつ）
     state.players.forEach(player => {
       const cards = state.drawCardsMUTING(3);
-      cards.forEach(card => player.addCardToHand(card));
+      cards.forEach(card => player.addCardToHandMUTING(card));
     });
 
     // 勝利条件と敗北条件を設定
