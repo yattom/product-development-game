@@ -240,7 +240,7 @@ export class DrawCardsEffectRule implements GameRule {
     
     // 引いたカードを手札に加える
     drawnCards.forEach(card => {
-      currentPlayer.addCardToHand(card);
+      currentPlayer.addCardToHandMUTING(card);
       
       // カードを引いたイベントを記録
       // 実際のイベント記録はGameStateクラス内で行われるが、ここでは例示

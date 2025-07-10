@@ -31,7 +31,7 @@ export class PlayCardRule implements GameRule {
     const cardId = currentAction.payload.cardId as string;
     
     // プレイヤーの手札からカードを削除
-    currentPlayer.removeCardFromHand(cardId);
+    currentPlayer.removeCardFromHandMUTING(cardId);
 
     // カードプレイイベントを記録
     state.addEventMUTING({
@@ -99,7 +99,7 @@ export class PlaceCardRule implements GameRule {
     const {state, currentAction, currentPlayer, cardId, category} = this.validateInput(context);
 
     // プレイヤーの手札からカードを削除
-    const removedCard = currentPlayer.removeCardFromHand(cardId);
+    const removedCard = currentPlayer.removeCardFromHandMUTING(cardId);
 
     // カードを仕事場に配置し、元々あったカードを取得
     const previousCard = state.placeCardInWorkplaceMUTING(removedCard, category);
@@ -258,7 +258,7 @@ export class DiscardCardRule implements GameRule {
     const cardId = currentAction.payload.cardId as string;
     
     // プレイヤーの手札からカードを削除
-    currentPlayer.removeCardFromHand(cardId);
+    currentPlayer.removeCardFromHandMUTING(cardId);
 
     // カードを捨て札に加える
     state.discardCardsMUTING([currentCard]);

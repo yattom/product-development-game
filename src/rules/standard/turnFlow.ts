@@ -168,7 +168,7 @@ export class StandardDrawRule implements GameRule {
 
     // カードを引いたイベントを記録
     drawnCards.forEach(card => {
-      currentPlayer.addCardToHand(card);
+      currentPlayer.addCardToHandMUTING(card);
 
       state.addEventMUTING({
         type: GameEventType.CardDrawn,
