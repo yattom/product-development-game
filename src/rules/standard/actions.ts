@@ -1,5 +1,7 @@
 import {ActionType, Category, GameContext, GameEventType, GameRule, RuleType} from '../interfaces';
 import {GameState} from '../../models/gameState';
+import {Player} from '../../models/player';
+import {Card} from "../../models/card";
 
 /**
  * カードプレイルール
@@ -31,14 +33,14 @@ export class PlayCardRule implements GameRule {
 
     const currentPlayer = state.players[state.currentPlayerIndex];
     const cardId = currentAction.payload.cardId as string;
-    
+
     // プレイヤーの手札からカードを削除
     const { newPlayer, removedCard } = currentPlayer.removeCardFromHand(cardId);
-    
+
     // プレイヤー配列を更新
     const updatedPlayers = [...state.players];
     updatedPlayers[state.currentPlayerIndex] = newPlayer;
-    
+
     let currentState = state.newState({ players: updatedPlayers });
 
     // カードプレイイベントを記録
@@ -54,12 +56,12 @@ export class PlayCardRule implements GameRule {
         cardEffect: currentCard.playEffect
       }
     });
-    
+
     // カードのプレイ効果を適用
     if (currentCard.playEffect) {
       // プレイ効果を処理するルールを適用
       const effectRuleId = currentCard.playEffect.ruleId;
-      
+
       // GameRuleレジストリからルールを取得して適用するロジックが必要
       // 現在はコンテキストにruleRegistryが含まれていないため、
       // 実際の実装ではエンジンクラスで処理することになる
@@ -78,7 +80,7 @@ export class PlayCardRule implements GameRule {
         }
       }
     }
-    
+
     // カードを捨て札に加える
     return currentState.discardCards([currentCard]);
   }
@@ -110,13 +112,10 @@ export class PlaceCardRule implements GameRule {
   apply(context: GameContext): GameState {
       const {state, currentAction, currentPlayer, cardId, category} = this.validateInput(context);
 
+      const currentPlayerId = currentPlayer.id;
+      const currentPlayerName = currentPlayer.name;
       // プレイヤーの手札からカードを削除
-      const { newPlayer: currentPlayer2, removedCard } = currentPlayer.removeCardFromHand(cardId);
-
-      // プレイヤー配列を更新
-      const updatedPlayers = [...state.players];
-      updatedPlayers[state.currentPlayerIndex] = currentPlayer2;
-      const stateWithUpdatedPlayer = state.newState({ players: updatedPlayers });
+      const {removedCard, stateWithUpdatedPlayer } = this.removeCardFromPlayersHand(state, currentPlayer, cardId);
 
       // カードを仕事場に配置し、元々あったカードを取得
       const { previousCard, state: newState} = stateWithUpdatedPlayer.placeCardInWorkplace(removedCard, category);
@@ -145,8 +144,8 @@ export class PlaceCardRule implements GameRule {
           type: GameEventType.CardPlaced,
           timestamp: Date.now(),
           data: {
-              playerId: currentPlayer2.id,
-              playerName: currentPlayer2.name,
+              playerId: currentPlayerId,
+              playerName: currentPlayerName,
               playerIndex: newState2.currentPlayerIndex,
               cardId: removedCard.id,
               cardName: removedCard.name,
@@ -228,6 +227,14 @@ export class PlaceCardRule implements GameRule {
       return newState3;
   }
 
+  private removeCardFromPlayersHand(state: GameState, currentPlayer: Player, cardId: string): { removedCard: Card, stateWithUpdatedPlayer: GameState } {
+    const playerIndex = state.currentPlayerIndex;
+    const { newPlayer, removedCard } = currentPlayer.removeCardFromHand(cardId);
+    const updatedPlayers = [...state.players];
+    updatedPlayers[playerIndex] = newPlayer;
+    return {removedCard, stateWithUpdatedPlayer: state.newState({ players: updatedPlayers })};
+  }
+
   private validateInput(context: GameContext) {
     const {state, currentCard, currentAction} = context;
     // currentCardは指定してはならない。currentAction.cardIdのカードを配置する
@@ -275,13 +282,13 @@ export class DiscardCardRule implements GameRule {
 
     const currentPlayer = state.players[state.currentPlayerIndex];
     const cardId = currentAction.payload.cardId as string;
-    
+
     // プレイヤーの手札からカードを削除
       currentPlayer.removeCardFromHandMUTING(cardId);
 
     // カードを捨て札に加える
       state.discardCardsMUTING([currentCard]);
-    
+
     // カード捨てイベントを記録
       state.addEventMUTING({
       type: GameEventType.CardDiscarded,
