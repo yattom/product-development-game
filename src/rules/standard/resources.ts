@@ -71,20 +71,23 @@ export class PayResourcesRule implements GameRule {
   /**
    * リソース支払い処理を行う
    * @param context ゲームコンテキスト
+   * @returns 新しいGameState
    */
-  apply(context: GameContext): void {
+  apply(context: GameContext): GameState {
     const { state, metadata } = context;
     const amount = metadata.effectParams?.amount as number;
 
-    const actualChange = state.modifyResourcesMUTING(-amount);
+    const oldValue = state.resources;
+    const newState = state.modifyResources(-amount);
+    const actualChange = newState.resources - oldValue;
 
     // イベントを記録
-    state.addEventMUTING({
+    return newState.addEvent({
       type: GameEventType.ResourceChanged,
       timestamp: Date.now(),
       data: {
-        oldValue: state.resources + actualChange,
-        newValue: state.resources,
+        oldValue,
+        newValue: newState.resources,
         change: actualChange,
         reason: `支払い: ${metadata.effectParams?.purpose}`
       }
