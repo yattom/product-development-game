@@ -23,13 +23,14 @@ export class StandardTurnStartRule implements GameRule {
   /**
    * ターン開始時の処理を行う
    * @param context ゲームコンテキスト
+   * @returns 新しいGameState
    */
-  apply(context: GameContext): void {
+  apply(context: GameContext): GameState {
     const { state } = context;
     const currentPlayer = state.players[state.currentPlayerIndex];
 
     // ターン開始イベントを記録
-    state.addEventMUTING({
+    return state.addEvent({
       type: GameEventType.PlayerTurnStarted,
       timestamp: Date.now(),
       data: {
@@ -38,8 +39,6 @@ export class StandardTurnStartRule implements GameRule {
         playerIndex: state.currentPlayerIndex
       }
     });
-
-    // 追加のターン開始処理があればここに実装
   }
 }
 
