@@ -6,7 +6,7 @@
   - ルールシステムをTDDでイミュータブル対応する
     - 各ルールのテストを書く
     - ルールがGameStateを返すよう修正
-    - 順序：~~StandardSetupRule~~ → ~~StandardTurnFlowRule~~ → ~~StandardActionsRule~~ → StandardResourcesRule → StandardChaosRule → StandardVictoryRule
+    - 順序：~~StandardSetupRule~~ → ~~StandardTurnFlowRule~~ → ~~StandardActionsRule~~ → ~~StandardResourcesRule~~ → StandardChaosRule → StandardVictoryRule
   - その他のコンポーネントをイミュータブル対応する
     - PlayEffectsのテストを書く
     - PlayEffectsをイミュータブル対応
