@@ -446,6 +446,15 @@ export class GameState {
   }
 
   /**
+   * 混沌レベルを自動で1増やす。
+   *
+   * @returns 新しいGameStateインスタンス
+   */
+  automaticChaosLevelIncrease() {
+    return this.modifyChaosLevel(1, -1);
+  }
+
+  /**
    * 1ラウンドの間に混沌レベルが変更されなかったフラグを設定する
    */
   setChaosNotModifiedForFullRound(value: boolean): GameState {
