@@ -176,14 +176,15 @@ export class CheckDefeatRule implements GameRule {
   /**
    * 敗北条件チェックを行う
    * @param context ゲームコンテキスト
+   * @returns 新しいGameState
    */
-  apply(context: GameContext): void {
+  apply(context: GameContext): GameState {
     const { state } = context;
     const defeatConditions = state.defeatConditions;
 
     // 敗北条件が設定されていない場合は処理終了
     if (!defeatConditions || defeatConditions.length === 0) {
-      return;
+      return state;
     }
 
     // 各敗北条件をチェック
@@ -236,7 +237,7 @@ export class CheckDefeatRule implements GameRule {
 
       if (defeatTriggered) {
         // 敗北条件達成イベントを記録
-        state.addEventMUTING({
+        let currentState = state.addEvent({
           type: GameEventType.DefeatTriggered,
           timestamp: Date.now(),
           data: {
@@ -246,12 +247,15 @@ export class CheckDefeatRule implements GameRule {
         });
 
         // 敗北フラグをメタデータに設定
-        state.setMetadataMUTING('gameOver', true);
-        state.setMetadataMUTING('defeatTriggered', true);
+        currentState = currentState.setMetadata('gameOver', true);
+        currentState = currentState.setMetadata('defeatTriggered', true);
 
         // 1つでも敗北条件を満たしていれば処理終了
-        break;
+        return currentState;
       }
     }
+    
+    // 敗北条件を満たさない場合は元の状態を返す
+    return state;
   }
 }
