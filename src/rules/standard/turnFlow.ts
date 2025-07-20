@@ -119,9 +119,7 @@ export class StandardTurnEndRule implements GameRule {
           }
         });
 
-        // TODO: modifyChaosLevelのイミュータブル版が必要
-        // 暫定的にここでは混沌レベル変更を省略
-        return currentState;
+        return currentState.automaticChaosLevelIncrease();
       }
     } else {
       // 混沌レベルが変更されていない場合、カウンターを増やす
