@@ -8,82 +8,82 @@ import {Card} from "../../models/card";
  * 手札からカードを使用した時の効果を処理する
  */
 export class PlayCardRule implements GameRule {
-  readonly id = 'standard-play-card';
-  readonly name = 'カードプレイ';
-  readonly description = '手札のカードを使用し、そのプレイ効果を適用します';
-  readonly type = RuleType.ActionRule;
+    readonly id = 'standard-play-card';
+    readonly name = 'カードプレイ';
+    readonly description = '手札のカードを使用し、そのプレイ効果を適用します';
+    readonly type = RuleType.ActionRule;
 
-  /**
-   * このルールが適用可能かどうかを判断する
-   * @param context ゲームコンテキスト
-   * @returns カードプレイアクションなら適用可能
-   */
-  isApplicable(context: GameContext): boolean {
-    return context.currentAction?.type === ActionType.PlayCard && !!context.currentCard;
-  }
-
-  /**
-   * カードプレイ処理を行う
-   * @param context ゲームコンテキスト
-   * @returns 新しいGameState
-   */
-  apply(context: GameContext): GameState {
-    const { state, currentCard, currentAction } = context;
-    if (!currentCard || !currentAction) return state;
-
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    const cardId = currentAction.payload.cardId as string;
-
-    // プレイヤーの手札からカードを削除
-    const { newPlayer, removedCard } = currentPlayer.removeCardFromHand(cardId);
-
-    // プレイヤー配列を更新
-    const updatedPlayers = [...state.players];
-    updatedPlayers[state.currentPlayerIndex] = newPlayer;
-
-    let currentState = state.newState({ players: updatedPlayers });
-
-    // カードプレイイベントを記録
-    currentState = currentState.addEvent({
-      type: GameEventType.CardPlayed,
-      timestamp: Date.now(),
-      data: {
-        playerId: currentPlayer.id,
-        playerName: currentPlayer.name,
-        playerIndex: state.currentPlayerIndex,
-        cardId: currentCard.id,
-        cardName: currentCard.name,
-        cardEffect: currentCard.playEffect
-      }
-    });
-
-    // カードのプレイ効果を適用
-    if (currentCard.playEffect) {
-      // プレイ効果を処理するルールを適用
-      const effectRuleId = currentCard.playEffect.ruleId;
-
-      // GameRuleレジストリからルールを取得して適用するロジックが必要
-      // 現在はコンテキストにruleRegistryが含まれていないため、
-      // 実際の実装ではエンジンクラスで処理することになる
-      const effectRule = context.metadata.ruleRegistry?.getRule(effectRuleId);
-      if (effectRule) {
-        const effectResult = effectRule.apply({
-          ...context,
-          state: currentState,
-          metadata: {
-            ...context.metadata,
-            effectParams: currentCard.playEffect.params
-          }
-        });
-        if (effectResult) {
-          currentState = effectResult;
-        }
-      }
+    /**
+     * このルールが適用可能かどうかを判断する
+     * @param context ゲームコンテキスト
+     * @returns カードプレイアクションなら適用可能
+     */
+    isApplicable(context: GameContext): boolean {
+        return context.currentAction?.type === ActionType.PlayCard && !!context.currentCard;
     }
 
-    // カードを捨て札に加える
-    return currentState.discardCards([currentCard]);
-  }
+    /**
+     * カードプレイ処理を行う
+     * @param context ゲームコンテキスト
+     * @returns 新しいGameState
+     */
+    apply(context: GameContext): GameState {
+        const {state, currentCard, currentAction} = context;
+        if (!currentCard || !currentAction) return state;
+
+        const currentPlayer = state.players[state.currentPlayerIndex];
+        const cardId = currentAction.payload.cardId as string;
+
+        // プレイヤーの手札からカードを削除
+        const {newPlayer, removedCard} = currentPlayer.removeCardFromHand(cardId);
+
+        // プレイヤー配列を更新
+        const updatedPlayers = [...state.players];
+        updatedPlayers[state.currentPlayerIndex] = newPlayer;
+
+        let currentState = state.newState({players: updatedPlayers});
+
+        // カードプレイイベントを記録
+        currentState = currentState.addEvent({
+            type: GameEventType.CardPlayed,
+            timestamp: Date.now(),
+            data: {
+                playerId: currentPlayer.id,
+                playerName: currentPlayer.name,
+                playerIndex: state.currentPlayerIndex,
+                cardId: currentCard.id,
+                cardName: currentCard.name,
+                cardEffect: currentCard.playEffect
+            }
+        });
+
+        // カードのプレイ効果を適用
+        if (currentCard.playEffect) {
+            // プレイ効果を処理するルールを適用
+            const effectRuleId = currentCard.playEffect.ruleId;
+
+            // GameRuleレジストリからルールを取得して適用するロジックが必要
+            // 現在はコンテキストにruleRegistryが含まれていないため、
+            // 実際の実装ではエンジンクラスで処理することになる
+            const effectRule = context.metadata.ruleRegistry?.getRule(effectRuleId);
+            if (effectRule) {
+                const effectResult = effectRule.apply({
+                    ...context,
+                    state: currentState,
+                    metadata: {
+                        ...context.metadata,
+                        effectParams: currentCard.playEffect.params
+                    }
+                });
+                if (effectResult) {
+                    currentState = effectResult;
+                }
+            }
+        }
+
+        // カードを捨て札に加える
+        return currentState.discardCards([currentCard]);
+    }
 }
 
 /**
@@ -91,34 +91,34 @@ export class PlayCardRule implements GameRule {
  * 手札からカードを場に配置する処理を行う
  */
 export class PlaceCardRule implements GameRule {
-  readonly id = 'standard-place-card';
-  readonly name = 'カード配置';
-  readonly description = '手札のカードを仕事場に配置します';
-  readonly type = RuleType.ActionRule;
+    readonly id = 'standard-place-card';
+    readonly name = 'カード配置';
+    readonly description = '手札のカードを仕事場に配置します';
+    readonly type = RuleType.ActionRule;
 
-  /**
-   * このルールが適用可能かどうかを判断する
-   * @param context ゲームコンテキスト
-   * @returns カード配置アクションなら適用可能
-   */
-  isApplicable(context: GameContext): boolean {
-    return context.currentAction?.type === ActionType.PlaceCard && !!context.currentCard;
-  }
+    /**
+     * このルールが適用可能かどうかを判断する
+     * @param context ゲームコンテキスト
+     * @returns カード配置アクションなら適用可能
+     */
+    isApplicable(context: GameContext): boolean {
+        return context.currentAction?.type === ActionType.PlaceCard && !!context.currentCard;
+    }
 
-  /**
-   * カード配置処理を行う
-   * @param context ゲームコンテキスト
-   */
-  apply(context: GameContext): GameState {
-      const {state, currentAction, currentPlayer, cardId, category} = this.validateInput(context);
+    /**
+     * カード配置処理を行う
+     * @param context ゲームコンテキスト
+     */
+    apply(context: GameContext): GameState {
+        const {state, currentAction, currentPlayer, cardId, category} = this.validateInput(context);
 
-      const {previousCard, newState} = this.putCardFromHandToWorkplace(currentPlayer, cardId, state, category);
+        const {previousCard, newState} = this.putCardFromHandToWorkplace(currentPlayer, cardId, state, category);
 
-      if (previousCard) {
-          this.handleRemovingCardFromWorkplace(currentAction, previousCard, state);
-      }
-      return newState;
-  }
+        if (previousCard) {
+            this.handleRemovingCardFromWorkplace(currentAction, previousCard, state);
+        }
+        return newState;
+    }
 
     private handleRemovingCardFromWorkplace(currentAction: Action, previousCard: Card, state: GameState) {
         // 押し出し処理の選択をアクションのペイロードから取得
@@ -235,30 +235,33 @@ export class PlaceCardRule implements GameRule {
         return {previousCard, newState: newState3};
     }
 
-    private removeCardFromPlayersHand(state: GameState, currentPlayer: Player, cardId: string): { removedCard: Card, stateWithUpdatedPlayer: GameState } {
-    const playerIndex = state.currentPlayerIndex;
-    const { newPlayer, removedCard } = currentPlayer.removeCardFromHand(cardId);
-    const updatedPlayers = [...state.players];
-    updatedPlayers[playerIndex] = newPlayer;
-    return {removedCard, stateWithUpdatedPlayer: state.newState({ players: updatedPlayers })};
-  }
-
-  private validateInput(context: GameContext) {
-    const {state, currentCard, currentAction} = context;
-    // currentCardは指定してはならない。currentAction.cardIdのカードを配置する
-    if (currentCard) {
-      throw new Error('currentCard must not be specified for PlaceCard action');
+    private removeCardFromPlayersHand(state: GameState, currentPlayer: Player, cardId: string): {
+        removedCard: Card,
+        stateWithUpdatedPlayer: GameState
+    } {
+        const playerIndex = state.currentPlayerIndex;
+        const {newPlayer, removedCard} = currentPlayer.removeCardFromHand(cardId);
+        const updatedPlayers = [...state.players];
+        updatedPlayers[playerIndex] = newPlayer;
+        return {removedCard, stateWithUpdatedPlayer: state.newState({players: updatedPlayers})};
     }
 
-    if (!currentAction) {
-      throw new Error('currentAction must be specified for PlaceCard action');
-    }
+    private validateInput(context: GameContext) {
+        const {state, currentCard, currentAction} = context;
+        // currentCardは指定してはならない。currentAction.cardIdのカードを配置する
+        if (currentCard) {
+            throw new Error('currentCard must not be specified for PlaceCard action');
+        }
 
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    const cardId = currentAction.payload.cardId as string;
-    const category = currentAction.payload.category as Category;
-    return {state, currentAction, currentPlayer, cardId, category};
-  }
+        if (!currentAction) {
+            throw new Error('currentAction must be specified for PlaceCard action');
+        }
+
+        const currentPlayer = state.players[state.currentPlayerIndex];
+        const cardId = currentAction.payload.cardId as string;
+        const category = currentAction.payload.category as Category;
+        return {state, currentAction, currentPlayer, cardId, category};
+    }
 }
 
 /**
@@ -266,48 +269,48 @@ export class PlaceCardRule implements GameRule {
  * 手札からカードを捨てる処理を行う
  */
 export class DiscardCardRule implements GameRule {
-  readonly id = 'standard-discard-card';
-  readonly name = 'カード捨て';
-  readonly description = '手札のカードを捨て札に加えます';
-  readonly type = RuleType.ActionRule;
+    readonly id = 'standard-discard-card';
+    readonly name = 'カード捨て';
+    readonly description = '手札のカードを捨て札に加えます';
+    readonly type = RuleType.ActionRule;
 
-  /**
-   * このルールが適用可能かどうかを判断する
-   * @param context ゲームコンテキスト
-   * @returns カード捨てアクションなら適用可能
-   */
-  isApplicable(context: GameContext): boolean {
-    return context.currentAction?.type === ActionType.DiscardCard && !!context.currentCard;
-  }
+    /**
+     * このルールが適用可能かどうかを判断する
+     * @param context ゲームコンテキスト
+     * @returns カード捨てアクションなら適用可能
+     */
+    isApplicable(context: GameContext): boolean {
+        return context.currentAction?.type === ActionType.DiscardCard && !!context.currentCard;
+    }
 
-  /**
-   * カード捨て処理を行う
-   * @param context ゲームコンテキスト
-   */
-  apply(context: GameContext): void {
-    const { state, currentCard, currentAction } = context;
-      if (!currentCard || !currentAction) return;
+    /**
+     * カード捨て処理を行う
+     * @param context ゲームコンテキスト
+     */
+    apply(context: GameContext): void {
+        const {state, currentCard, currentAction} = context;
+        if (!currentCard || !currentAction) return;
 
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    const cardId = currentAction.payload.cardId as string;
+        const currentPlayer = state.players[state.currentPlayerIndex];
+        const cardId = currentAction.payload.cardId as string;
 
-    // プレイヤーの手札からカードを削除
-      currentPlayer.removeCardFromHandMUTING(cardId);
+        // プレイヤーの手札からカードを削除
+        currentPlayer.removeCardFromHandMUTING(cardId);
 
-    // カードを捨て札に加える
-      state.discardCardsMUTING([currentCard]);
+        // カードを捨て札に加える
+        state.discardCardsMUTING([currentCard]);
 
-    // カード捨てイベントを記録
-      state.addEventMUTING({
-      type: GameEventType.CardDiscarded,
-      timestamp: Date.now(),
-      data: {
-        playerId: currentPlayer.id,
-        playerName: currentPlayer.name,
-        playerIndex: state.currentPlayerIndex,
-        cardId: currentCard.id,
-        cardName: currentCard.name
-      }
-    });
-  }
+        // カード捨てイベントを記録
+        state.addEventMUTING({
+            type: GameEventType.CardDiscarded,
+            timestamp: Date.now(),
+            data: {
+                playerId: currentPlayer.id,
+                playerName: currentPlayer.name,
+                playerIndex: state.currentPlayerIndex,
+                cardId: currentCard.id,
+                cardName: currentCard.name
+            }
+        });
+    }
 }
