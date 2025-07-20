@@ -35,7 +35,7 @@ describe('Models and Rules Interaction', () => {
         };
 
         // ルールを適用
-        placeCardRule.apply({
+        const appliedState = placeCardRule.apply({
             state: gameState,
             currentAction: action,
             metadata: {}
@@ -43,14 +43,14 @@ describe('Models and Rules Interaction', () => {
 
         // 検証
         // 1. 手札からカードが削除されていること
-        expect(player.hand.length).toBe(0);
+        expect(appliedState.players[0].hand.length).toBe(0);
 
         // 2. 職場にカードが配置されていること
-        expect(gameState.workplaces[Category.Technology]?.id).toBe(handCard.id);
+        expect(appliedState.workplaces[Category.Technology]?.id).toBe(handCard.id);
 
         // 3. 元々あったカードがレーンに移動していること
-        expect(gameState.completionLane.length).toBe(1);
-        expect(gameState.completionLane[0].id).toBe(workplaceCard.id);
+        expect(appliedState.completionLane.length).toBe(1);
+        expect(appliedState.completionLane[0].id).toBe(workplaceCard.id);
     });
     it('手札からカードをプレイしてその効果を適用する', () => {
         // モックのルールIDを生成
@@ -109,7 +109,7 @@ describe('Models and Rules Interaction', () => {
         };
 
         // ルールを適用
-        playCardRule.apply({
+        const appliedState = playCardRule.apply({
             state: gameState,
             currentCard: handCard,
             currentAction: action,
@@ -120,11 +120,11 @@ describe('Models and Rules Interaction', () => {
 
         // 検証
         // 1. 手札からカードが削除されていること
-        expect(player.hand.length).toBe(0);
+        expect(appliedState.players[0].hand.length).toBe(0);
 
         // 2. カードプレイイベントが記録されていること
-        expect(gameState.eventHistory.length).toBeGreaterThan(0);
-        expect(gameState.eventHistory[0].type).toBe(GameEventType.CardPlayed);
+        expect(appliedState.eventHistory.length).toBeGreaterThan(0);
+        expect(appliedState.eventHistory[0].type).toBe(GameEventType.CardPlayed);
 
         // 3. 効果ルールが呼び出されていること
         expect(mockRuleRegistry.getRule).toHaveBeenCalledWith(mockRuleId);
@@ -132,7 +132,7 @@ describe('Models and Rules Interaction', () => {
         expect(mockEffectRule.apply.mock.calls[0][0].metadata.effectParams).toEqual({amount: 2});
 
         // 4. カードが捨て札に追加されていること
-        expect(gameState.discard.length).toBe(1);
-        expect(gameState.discard[0].id).toBe(handCard.id);
+        expect(appliedState.discard.length).toBe(1);
+        expect(appliedState.discard[0].id).toBe(handCard.id);
     });
 });
