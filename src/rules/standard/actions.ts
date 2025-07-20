@@ -1,4 +1,5 @@
 import {ActionType, Category, GameContext, GameEventType, GameRule, RuleType} from '../interfaces';
+import {GameState} from '../../models/gameState';
 
 /**
  * カードプレイルール
@@ -22,19 +23,26 @@ export class PlayCardRule implements GameRule {
   /**
    * カードプレイ処理を行う
    * @param context ゲームコンテキスト
+   * @returns 新しいGameState
    */
-  apply(context: GameContext): void {
+  apply(context: GameContext): GameState {
     const { state, currentCard, currentAction } = context;
-    if (!currentCard || !currentAction) return;
+    if (!currentCard || !currentAction) return state;
 
     const currentPlayer = state.players[state.currentPlayerIndex];
     const cardId = currentAction.payload.cardId as string;
     
     // プレイヤーの手札からカードを削除
-    currentPlayer.removeCardFromHandMUTING(cardId);
+    const { newPlayer, removedCard } = currentPlayer.removeCardFromHand(cardId);
+    
+    // プレイヤー配列を更新
+    const updatedPlayers = [...state.players];
+    updatedPlayers[state.currentPlayerIndex] = newPlayer;
+    
+    let currentState = state.newState({ players: updatedPlayers });
 
     // カードプレイイベントを記録
-    state.addEventMUTING({
+    currentState = currentState.addEvent({
       type: GameEventType.CardPlayed,
       timestamp: Date.now(),
       data: {
@@ -57,18 +65,22 @@ export class PlayCardRule implements GameRule {
       // 実際の実装ではエンジンクラスで処理することになる
       const effectRule = context.metadata.ruleRegistry?.getRule(effectRuleId);
       if (effectRule) {
-        effectRule.apply({
+        const effectResult = effectRule.apply({
           ...context,
+          state: currentState,
           metadata: {
             ...context.metadata,
             effectParams: currentCard.playEffect.params
           }
         });
+        if (effectResult) {
+          currentState = effectResult;
+        }
       }
     }
     
     // カードを捨て札に加える
-    state.discardCardsMUTING([currentCard]);
+    return currentState.discardCards([currentCard]);
   }
 }
 
