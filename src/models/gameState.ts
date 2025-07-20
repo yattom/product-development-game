@@ -357,7 +357,7 @@ export class GameState {
    * @param category 配置するカテゴリ
    * @returns 更新されたGameState
    */
-  placeCardInWorkplace(card: Card, category: Category): { previousCard: Card | null, state: GameState } {
+  placeCardInWorkplace(card: Card, category: Category): GameState {
     if (!card.hasCategory(category)) {
       throw new Error(`Card ${card.id} does not have category ${category}`);
     }
@@ -365,7 +365,7 @@ export class GameState {
     const previousCard = this._workplaces[category];
     const workplaces = {...this._workplaces}
     workplaces[category] = card;
-    return {previousCard, state: this.newState({workplaces})};
+    return this.newState({workplaces});
   }
 
   /**

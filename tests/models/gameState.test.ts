@@ -84,8 +84,7 @@ describe('GameState', () => {
                     [Category.Management]: null
                 }
                 const state = createTestGameState({workplaces});
-                const {previousCard, state: nextState} = state.placeCardInWorkplace(card2, Category.Technology);
-                expect(previousCard).toBe(card1);
+                const nextState = state.placeCardInWorkplace(card2, Category.Technology);
                 expect(nextState).not.toBe(state);
                 expect(nextState.workplaces[Category.Technology]).toBe(card2);
                 expect(state.workplaces[Category.Technology]).toBe(card1);
