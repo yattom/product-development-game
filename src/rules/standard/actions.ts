@@ -107,27 +107,33 @@ export class PlaceCardRule implements GameRule {
    * カード配置処理を行う
    * @param context ゲームコンテキスト
    */
-  apply(context: GameContext): void {
+  apply(context: GameContext): GameState {
       const {state, currentAction, currentPlayer, cardId, category} = this.validateInput(context);
 
       // プレイヤーの手札からカードを削除
-      const removedCard = currentPlayer.removeCardFromHandMUTING(cardId);
+      const { newPlayer: currentPlayer2, removedCard } = currentPlayer.removeCardFromHand(cardId);
+
+      // プレイヤー配列を更新
+      const updatedPlayers = [...state.players];
+      updatedPlayers[state.currentPlayerIndex] = currentPlayer2;
+      const stateWithUpdatedPlayer = state.newState({ players: updatedPlayers });
 
       // カードを仕事場に配置し、元々あったカードを取得
-      const previousCard = state.placeCardInWorkplaceMUTING(removedCard, category);
+      const { previousCard, state: newState} = stateWithUpdatedPlayer.placeCardInWorkplace(removedCard, category);
 
       // リソースの増減処理
       const resourceChange = removedCard.situationEffect;
-      const actualChange = state.modifyResourcesMUTING(resourceChange);
+      const newState2 = newState.modifyResources(resourceChange);
 
       // リソース変更イベントを記録
-      if (actualChange !== 0) {
+      if (newState2.resources !== newState.resources) {
+          const actualChange = newState2.resources - newState.resources;
           state.addEventMUTING({
               type: GameEventType.ResourceChanged,
               timestamp: Date.now(),
               data: {
-                  oldValue: state.resources - actualChange,
-                  newValue: state.resources,
+                  oldValue: newState.resources,
+                  newValue: newState2.resources,
                   change: actualChange,
                   reason: `カード配置: ${removedCard.name}`
               }
@@ -135,13 +141,13 @@ export class PlaceCardRule implements GameRule {
       }
 
       // カード配置イベントを記録
-      state.addEventMUTING({
+      const newState3 = newState2.addEvent({
           type: GameEventType.CardPlaced,
           timestamp: Date.now(),
           data: {
-              playerId: currentPlayer.id,
-              playerName: currentPlayer.name,
-              playerIndex: state.currentPlayerIndex,
+              playerId: currentPlayer2.id,
+              playerName: currentPlayer2.name,
+              playerIndex: newState2.currentPlayerIndex,
               cardId: removedCard.id,
               cardName: removedCard.name,
               category: category,
@@ -219,6 +225,7 @@ export class PlaceCardRule implements GameRule {
               }
           }
       }
+      return newState3;
   }
 
   private validateInput(context: GameContext) {
