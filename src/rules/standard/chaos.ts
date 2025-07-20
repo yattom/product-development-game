@@ -1,4 +1,5 @@
 import {ActionType, GameContext, GameEventType, GameRule, RuleType} from '../interfaces';
+import {GameState} from '../../models/gameState';
 
 /**
  * 混沌レベル2の効果ルール
@@ -25,25 +26,30 @@ export class ChaosLevel2Rule implements GameRule {
   /**
    * 混沌レベル2の効果を適用する
    * @param context ゲームコンテキスト
+   * @returns 新しいGameState
    */
-  apply(context: GameContext): void {
+  apply(context: GameContext): GameState {
     const { state } = context;
     const currentPlayer = state.players[state.currentPlayerIndex];
     
     // 山札から1枚引く
-    const drawnCards = state.drawCardsMUTING(1);
-    if (drawnCards.length === 0) {
+    const drawResult = state.drawCards(1);
+    if (drawResult.drawnCards.length === 0) {
       // 山札が空の場合は処理終了
-      return;
+      return state;
     }
     
-    const drawnCard = drawnCards[0];
+    const drawnCard = drawResult.drawnCards[0];
+    let currentState = drawResult.state;
     
     // 引いたカードを手札に加える
-    currentPlayer.addCardToHandMUTING(drawnCard);
+    const updatedPlayer = currentPlayer.addCardToHand(drawnCard);
+    const updatedPlayers = [...currentState.players];
+    updatedPlayers[currentState.currentPlayerIndex] = updatedPlayer;
+    currentState = currentState.newState({ players: updatedPlayers });
     
     // カードを引いたイベントを記録
-    state.addEventMUTING({
+    currentState = currentState.addEvent({
       type: GameEventType.CardDrawn,
       timestamp: Date.now(),
       data: {
@@ -59,29 +65,35 @@ export class ChaosLevel2Rule implements GameRule {
     // 手札選択処理のプレースホルダー
     // 実際の実装では、ここでプレイヤーに手札から捨てるカードを選択させる必要がある
     // 現在のコンテキストでは選択ロジックが含まれていないため、仮に最初のカードを捨てる
-    if (currentPlayer.getHandSize() > 0) {
-      const cardToDiscard = currentPlayer.hand[0];
-      const discardedCard = currentPlayer.removeCardFromHandMUTING(currentPlayer.hand[0].id);
+    const currentUpdatedPlayer = currentState.players[currentState.currentPlayerIndex];
+    if (currentUpdatedPlayer.getHandSize() > 0) {
+      const cardToDiscard = currentUpdatedPlayer.hand[0];
+      const { newPlayer: playerAfterDiscard, removedCard } = currentUpdatedPlayer.removeCardFromHand(cardToDiscard.id);
       
-      if (discardedCard) {
-        // カードを捨て札に加える
-        state.discardCardsMUTING([discardedCard]);
-        
-        // カードを捨てたイベントを記録
-        state.addEventMUTING({
-          type: GameEventType.CardDiscarded,
-          timestamp: Date.now(),
-          data: {
-            playerId: currentPlayer.id,
-            playerName: currentPlayer.name,
-            playerIndex: state.currentPlayerIndex,
-            cardId: discardedCard.id,
-            cardName: discardedCard.name,
-            reason: '混沌レベル2の効果'
-          }
-        });
-      }
+      // プレイヤー配列を更新
+      const playersAfterDiscard = [...currentState.players];
+      playersAfterDiscard[currentState.currentPlayerIndex] = playerAfterDiscard;
+      currentState = currentState.newState({ players: playersAfterDiscard });
+      
+      // カードを捨て札に加える
+      currentState = currentState.discardCards([removedCard]);
+      
+      // カードを捨てたイベントを記録
+      currentState = currentState.addEvent({
+        type: GameEventType.CardDiscarded,
+        timestamp: Date.now(),
+        data: {
+          playerId: currentPlayer.id,
+          playerName: currentPlayer.name,
+          playerIndex: state.currentPlayerIndex,
+          cardId: removedCard.id,
+          cardName: removedCard.name,
+          reason: '混沌レベル2の効果'
+        }
+      });
     }
+    
+    return currentState;
   }
 }
 
