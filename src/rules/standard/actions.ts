@@ -1,4 +1,4 @@
-import {ActionType, Category, GameContext, GameEventType, GameRule, RuleType} from '../interfaces';
+import {Action, ActionType, Category, GameContext, GameEventType, GameRule, RuleType} from '../interfaces';
 import {GameState} from '../../models/gameState';
 import {Player} from '../../models/player';
 import {Card} from "../../models/card";
@@ -112,122 +112,130 @@ export class PlaceCardRule implements GameRule {
   apply(context: GameContext): GameState {
       const {state, currentAction, currentPlayer, cardId, category} = this.validateInput(context);
 
-      const currentPlayerId = currentPlayer.id;
-      const currentPlayerName = currentPlayer.name;
-      // プレイヤーの手札からカードを削除
-      const {removedCard, stateWithUpdatedPlayer } = this.removeCardFromPlayersHand(state, currentPlayer, cardId);
+      const {previousCard, newState} = this.putCardFromHandToWorkplace(currentPlayer, cardId, state, category);
 
-      // カードを仕事場に配置し、元々あったカードを取得
-      const { previousCard, state: newState} = stateWithUpdatedPlayer.placeCardInWorkplace(removedCard, category);
-
-      // リソースの増減処理
-      const resourceChange = removedCard.situationEffect;
-      const newState2 = newState.modifyResources(resourceChange);
-
-      // リソース変更イベントを記録
-      if (newState2.resources !== newState.resources) {
-          const actualChange = newState2.resources - newState.resources;
-          state.addEventMUTING({
-              type: GameEventType.ResourceChanged,
-              timestamp: Date.now(),
-              data: {
-                  oldValue: newState.resources,
-                  newValue: newState2.resources,
-                  change: actualChange,
-                  reason: `カード配置: ${removedCard.name}`
-              }
-          });
-      }
-
-      // カード配置イベントを記録
-      const newState3 = newState2.addEvent({
-          type: GameEventType.CardPlaced,
-          timestamp: Date.now(),
-          data: {
-              playerId: currentPlayerId,
-              playerName: currentPlayerName,
-              playerIndex: newState2.currentPlayerIndex,
-              cardId: removedCard.id,
-              cardName: removedCard.name,
-              category: category,
-              previousCardId: previousCard?.id,
-              previousCardName: previousCard?.name
-          }
-      });
-
-      // 元々あったカードの処理（存在する場合）
       if (previousCard) {
-          // 押し出し処理の選択をアクションのペイロードから取得
-          const pushOutOption = currentAction.payload.pushOutOption as 'lane' | 'discard';
-
-          if (pushOutOption === 'lane') {
-              // 成果をまとめる（レーンへ移動）
-              // リソースカードの場合、同数のリソーストークンを支払う
-              if (previousCard.isResourceCard()) {
-                  const cost = previousCard.situationEffect;
-                  if (state.resources >= cost) {
-                      // リソースを支払う
-                      state.modifyResourcesMUTING(-cost);
-
-                      // リソース変更イベントを記録
-                      state.addEventMUTING({
-                          type: GameEventType.ResourceChanged,
-                          timestamp: Date.now(),
-                          data: {
-                              oldValue: state.resources + cost,
-                              newValue: state.resources,
-                              change: -cost,
-                              reason: `レーン移動コスト: ${previousCard.name}`
-                          }
-                      });
-
-                      // カードを完成品レーンに移動
-                      state.moveCardToCompletionLaneMUTING(previousCard);
-                  } else {
-                      // リソースが足りない場合は捨て札に
-                      state.discardCardsMUTING([previousCard]);
-                  }
-              } else {
-                  // トラブルカードや中立カードはコストなしでレーンに移動
-                  state.moveCardToCompletionLaneMUTING(previousCard);
-              }
-          } else if (pushOutOption === 'discard') {
-              // 押し出し（捨てる）
-              // トラブルカードの場合、絶対値と同数のリソーストークンを支払う
-              if (previousCard.isTroubleCard()) {
-                  const cost = Math.abs(previousCard.situationEffect);
-                  if (state.resources >= cost) {
-                      // リソースを支払う
-                      state.modifyResourcesMUTING(-cost);
-
-                      // リソース変更イベントを記録
-                      state.addEventMUTING({
-                          type: GameEventType.ResourceChanged,
-                          timestamp: Date.now(),
-                          data: {
-                              oldValue: state.resources + cost,
-                              newValue: state.resources,
-                              change: -cost,
-                              reason: `トラブル解消コスト: ${previousCard.name}`
-                          }
-                      });
-
-                      // カードを捨て札に加える
-                      state.discardCardsMUTING([previousCard]);
-                  } else {
-                      // リソースが足りない場合はレーンに移動
-                      state.moveCardToCompletionLaneMUTING(previousCard);
-                  }
-              } else {
-                  // リソースカードや中立カードは捨て札に
-                  state.discardCardsMUTING([previousCard]);
-              }
-          }
+          this.handleRemovingCardFromWorkplace(currentAction, previousCard, state);
       }
-      return newState3;
+      return newState;
   }
 
-  private removeCardFromPlayersHand(state: GameState, currentPlayer: Player, cardId: string): { removedCard: Card, stateWithUpdatedPlayer: GameState } {
+    private handleRemovingCardFromWorkplace(currentAction: Action, previousCard: Card, state: GameState) {
+        // 押し出し処理の選択をアクションのペイロードから取得
+        const pushOutOption = currentAction.payload.pushOutOption as 'lane' | 'discard';
+
+        if (pushOutOption === 'lane') {
+            // 成果をまとめる（レーンへ移動）
+            // リソースカードの場合、同数のリソーストークンを支払う
+            if (previousCard.isResourceCard()) {
+                const cost = previousCard.situationEffect;
+                if (state.resources >= cost) {
+                    // リソースを支払う
+                    state.modifyResourcesMUTING(-cost);
+
+                    // リソース変更イベントを記録
+                    state.addEventMUTING({
+                        type: GameEventType.ResourceChanged,
+                        timestamp: Date.now(),
+                        data: {
+                            oldValue: state.resources + cost,
+                            newValue: state.resources,
+                            change: -cost,
+                            reason: `レーン移動コスト: ${previousCard.name}`
+                        }
+                    });
+
+                    // カードを完成品レーンに移動
+                    state.moveCardToCompletionLaneMUTING(previousCard);
+                } else {
+                    // リソースが足りない場合は捨て札に
+                    state.discardCardsMUTING([previousCard]);
+                }
+            } else {
+                // トラブルカードや中立カードはコストなしでレーンに移動
+                state.moveCardToCompletionLaneMUTING(previousCard);
+            }
+        } else if (pushOutOption === 'discard') {
+            // 押し出し（捨てる）
+            // トラブルカードの場合、絶対値と同数のリソーストークンを支払う
+            if (previousCard.isTroubleCard()) {
+                const cost = Math.abs(previousCard.situationEffect);
+                if (state.resources >= cost) {
+                    // リソースを支払う
+                    state.modifyResourcesMUTING(-cost);
+
+                    // リソース変更イベントを記録
+                    state.addEventMUTING({
+                        type: GameEventType.ResourceChanged,
+                        timestamp: Date.now(),
+                        data: {
+                            oldValue: state.resources + cost,
+                            newValue: state.resources,
+                            change: -cost,
+                            reason: `トラブル解消コスト: ${previousCard.name}`
+                        }
+                    });
+
+                    // カードを捨て札に加える
+                    state.discardCardsMUTING([previousCard]);
+                } else {
+                    // リソースが足りない場合はレーンに移動
+                    state.moveCardToCompletionLaneMUTING(previousCard);
+                }
+            } else {
+                // リソースカードや中立カードは捨て札に
+                state.discardCardsMUTING([previousCard]);
+            }
+        }
+    }
+
+    private putCardFromHandToWorkplace(currentPlayer: Player, cardId: string, state: GameState, category: Category) {
+        const currentPlayerId = currentPlayer.id;
+        const currentPlayerName = currentPlayer.name;
+
+        const previousCard = state.workplaces[category];
+        const {newPlayer, removedCard} = currentPlayer.removeCardFromHand(cardId);
+        const updatedPlayers = [...state.players];
+        updatedPlayers[state.currentPlayerIndex] = newPlayer;
+        const newState = state
+            .newState({players: updatedPlayers})
+            .placeCardInWorkplace(removedCard, category)
+            .modifyResources(removedCard.situationEffect);
+
+        // リソース変更イベントを記録
+        if (state.resources !== newState.resources) {
+            const actualChange = newState.resources - newState.resources;
+            state.addEventMUTING({
+                type: GameEventType.ResourceChanged,
+                timestamp: Date.now(),
+                data: {
+                    oldValue: newState.resources,
+                    newValue: newState.resources,
+                    change: actualChange,
+                    reason: `カード配置: ${removedCard.name}`
+                }
+            });
+        }
+
+        // カード配置イベントを記録
+        const newState3 = newState.addEvent({
+            type: GameEventType.CardPlaced,
+            timestamp: Date.now(),
+            data: {
+                playerId: currentPlayerId,
+                playerName: currentPlayerName,
+                playerIndex: newState.currentPlayerIndex,
+                cardId: removedCard.id,
+                cardName: removedCard.name,
+                category: category,
+                previousCardId: previousCard?.id,
+                previousCardName: previousCard?.name
+            }
+        });
+        return {previousCard, newState: newState3};
+    }
+
+    private removeCardFromPlayersHand(state: GameState, currentPlayer: Player, cardId: string): { removedCard: Card, stateWithUpdatedPlayer: GameState } {
     const playerIndex = state.currentPlayerIndex;
     const { newPlayer, removedCard } = currentPlayer.removeCardFromHand(cardId);
     const updatedPlayers = [...state.players];
