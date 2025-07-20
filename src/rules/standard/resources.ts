@@ -1,4 +1,5 @@
 import { ActionType, GameContext, GameEventType, GameRule, RuleType } from '../interfaces';
+import { GameState } from '../../models/gameState';
 
 /**
  * リソース変更ルール
@@ -22,20 +23,23 @@ export class ModifyResourcesRule implements GameRule {
   /**
    * リソース変更処理を行う
    * @param context ゲームコンテキスト
+   * @returns 新しいGameState
    */
-  apply(context: GameContext): void {
+  apply(context: GameContext): GameState {
     const { state, metadata } = context;
     const delta = metadata.effectParams?.delta as number;
 
-    const actualChange = state.modifyResourcesMUTING(delta);
+    const oldValue = state.resources;
+    const newState = state.modifyResources(delta);
+    const actualChange = newState.resources - oldValue;
 
     // イベントを記録
-    state.addEventMUTING({
+    return newState.addEvent({
       type: GameEventType.ResourceChanged,
       timestamp: Date.now(),
       data: {
-        oldValue: state.resources - actualChange,
-        newValue: state.resources,
+        oldValue,
+        newValue: newState.resources,
         change: actualChange,
         reason: metadata.effectParams?.reason || 'カード効果'
       }
