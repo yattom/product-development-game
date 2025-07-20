@@ -27,14 +27,15 @@ export class CheckVictoryRule implements GameRule {
   /**
    * 勝利条件チェックを行う
    * @param context ゲームコンテキスト
+   * @returns 新しいGameState
    */
-  apply(context: GameContext): void {
+  apply(context: GameContext): GameState {
     const { state } = context;
     const victoryConditions = state.victoryConditions;
 
     // 勝利条件が設定されていない場合は処理終了
     if (!victoryConditions || victoryConditions.length === 0) {
-      return;
+      return state;
     }
 
     // 各勝利条件をチェック
@@ -78,7 +79,7 @@ export class CheckVictoryRule implements GameRule {
 
       if (victoryAchieved) {
         // 勝利条件達成イベントを記録
-        state.addEventMUTING({
+        let currentState = state.addEvent({
           type: GameEventType.VictoryAchieved,
           timestamp: Date.now(),
           data: {
@@ -88,13 +89,16 @@ export class CheckVictoryRule implements GameRule {
         });
 
         // 勝利フラグをメタデータに設定
-        state.setMetadataMUTING('gameOver', true);
-        state.setMetadataMUTING('victoryAchieved', true);
+        currentState = currentState.setMetadata('gameOver', true);
+        currentState = currentState.setMetadata('victoryAchieved', true);
 
         // 1つでも勝利条件を満たしていれば処理終了
-        break;
+        return currentState;
       }
     }
+    
+    // 勝利条件を満たさない場合は元の状態を返す
+    return state;
   }
 
   /**
