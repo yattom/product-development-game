@@ -204,16 +204,16 @@ export class PlaceCardRule implements GameRule {
                 // リソースカードや中立カードは捨て札に
                 return state.discardCards([previousCard]);
             }
-            
+
             const cost = Math.abs(previousCard.situationEffect);
             if (state.resources < cost) {
                 // リソースが足りない場合はエラー
                 throw new Error(`Insufficient resources to discard trouble card: required ${cost}, available ${state.resources}`);
             }
-            
+
             // リソースを支払う
             const stateAfterPayingResources = state.modifyResources(-cost);
-            
+
             // リソース変更イベントを記録してカードを捨て札に加える
             return stateAfterPayingResources.addEvent({
                 type: GameEventType.ResourceChanged,
@@ -228,17 +228,6 @@ export class PlaceCardRule implements GameRule {
         } else {
             throw new Error(`Invalid pushOutOption: ${pushOutOption}`);
         }
-    }
-
-    private removeCardFromPlayersHand(state: GameState, currentPlayer: Player, cardId: string): {
-        removedCard: Card,
-        stateWithUpdatedPlayer: GameState
-    } {
-        const playerIndex = state.currentPlayerIndex;
-        const {newPlayer, removedCard} = currentPlayer.removeCardFromHand(cardId);
-        const updatedPlayers = [...state.players];
-        updatedPlayers[playerIndex] = newPlayer;
-        return {removedCard, stateWithUpdatedPlayer: state.newState({players: updatedPlayers})};
     }
 
     private validateInput(context: GameContext) {
