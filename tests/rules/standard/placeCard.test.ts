@@ -1,5 +1,5 @@
 import { PlaceCardRule } from '../../../src/rules/standard/actions';
-import { GameContext } from '../../../src/rules/interfaces';
+import {GameContext, GameEventType} from '../../../src/rules/interfaces';
 import { ActionType, Category } from '../../../src/rules/interfaces';
 import { createTestGameState, createTestPlayer, createTestCard } from '../../fixture/create_helper';
 
@@ -113,6 +113,8 @@ describe('PlaceCardRule', () => {
       expect(newState.resources).toBe(originalResources - 2);
       expect(newState.completionLane.length).toBe(1);
       expect(newState.eventHistory.length).toBe(2);
+      expect(newState.eventHistory[0].type).toBe(GameEventType.CardPlaced);
+      expect(newState.eventHistory[1].type).toBe(GameEventType.ResourceChanged);
     });
 
     it('workplace から discard への pushout でstate が mutate される', () => {
