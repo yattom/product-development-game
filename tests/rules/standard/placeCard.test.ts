@@ -4,12 +4,12 @@ import { ActionType, Category } from '../../../src/rules/interfaces';
 import { createTestGameState, createTestPlayer, createTestCard } from '../../fixture/create_helper';
 
 describe('PlaceCardRule', () => {
-  describe('シンプルなカード配置', () => {
+  describe('applying the rule', () => {
     it('空のカテゴリに効果なしカードを配置する', () => {
       // Given: 効果なしのテストカードを持つプレイヤー
       const testCard = createTestCard({situationEffect: 0}); // デフォルトで効果1のはず
       const player1 = createTestPlayer(testCard);
-      
+
       const state = createTestGameState({
         players: [player1],
         currentPlayerIndex: 0,
@@ -20,7 +20,7 @@ describe('PlaceCardRule', () => {
           MANAGEMENT: null
         }
       });
-      
+
       const context: GameContext = {
         state,
         currentAction: {
@@ -30,23 +30,23 @@ describe('PlaceCardRule', () => {
         currentCard: undefined, // PlaceCardではcurrentCardを指定しない
         metadata: {}
       };
-      
+
       const originalHandSize = player1.getHandSize();
       const originalEventHistory = [...state.eventHistory];
-      
+
       // When: ルールを適用
       const rule = new PlaceCardRule();
       const newState = rule.apply(context);
-      
+
       // Then: 新しいGameStateが返される
       expect(newState).toBeDefined();
       expect(newState).not.toBe(state);
-      
+
       // Then: 元の状態は変更されない
       expect(state.eventHistory).toEqual(originalEventHistory);
       expect(state.players[0].getHandSize()).toBe(originalHandSize);
       expect(state.workplaces.TECHNOLOGY).toBeNull();
-      
+
       // Then: 新しい状態では適切に処理されている
       expect(newState.players[0].getHandSize()).toBe(originalHandSize - 1);
       expect(newState.workplaces.TECHNOLOGY).toEqual(testCard);
@@ -61,5 +61,59 @@ describe('PlaceCardRule', () => {
         }
       });
     });
+
+    it('workplace から lane への pushout でstate が mutate される', () => {
+      // Given: 既にworkplaceにカードが配置されている状態
+      const existingCard = createTestCard({ situationEffect: 2 }); // リソースカード
+      const newCard = createTestCard({ situationEffect: 1 });
+      const player1 = createTestPlayer(newCard);
+      
+      const state = createTestGameState({
+        players: [player1],
+        currentPlayerIndex: 0,
+        eventHistory: [],
+        resources: 3, // 十分なリソース（最大値）
+        workplaces: {
+          TECHNOLOGY: existingCard, // 既存のカード
+          USER: null,
+          MANAGEMENT: null
+        },
+        completionLane: [] // 空のレーン
+      });
+      
+      const context: GameContext = {
+        state,
+        currentAction: {
+          type: ActionType.PlaceCard,
+          payload: { 
+            cardId: newCard.id, 
+            category: Category.Technology,
+            pushOutOption: 'lane' // レーンに移動
+          }
+        },
+        currentCard: undefined,
+        metadata: {}
+      };
+      
+      // 元の状態を記録
+      const originalResources = state.resources;
+      const originalCompletionLaneLength = state.completionLane.length;
+      const originalEvents = [...state.eventHistory];
+      
+      // When: ルールを適用
+      const rule = new PlaceCardRule();
+      const newState = rule.apply(context);
+
+      // 元のstateは変更されない
+      expect(state.resources).toBe(originalResources);
+      expect(state.completionLane.length).toBe(originalCompletionLaneLength);
+      expect(state.eventHistory).toEqual(originalEvents);
+      
+      // 新しいstateでは適切に処理されている
+      expect(newState.resources).toBe(originalResources - 2);
+      expect(newState.completionLane.length).toBe(1);
+      expect(newState.eventHistory.length).toBe(2);
+    });
+
   });
 });
