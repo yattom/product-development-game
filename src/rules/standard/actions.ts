@@ -113,80 +113,11 @@ export class PlaceCardRule implements GameRule {
         const {state, currentAction, currentPlayer, cardId, category} = this.validateInput(context);
 
         const {previousCard, newState} = this.putCardFromHandToWorkplace(currentPlayer, cardId, state, category);
-
-        if (previousCard) {
-            this.handleRemovingCardFromWorkplace(currentAction, previousCard, state);
+        if (!previousCard) {
+            return newState;
         }
-        return newState;
-    }
 
-    private handleRemovingCardFromWorkplace(currentAction: Action, previousCard: Card, state: GameState) {
-        // 押し出し処理の選択をアクションのペイロードから取得
-        const pushOutOption = currentAction.payload.pushOutOption as 'lane' | 'discard';
-
-        if (pushOutOption === 'lane') {
-            // 成果をまとめる（レーンへ移動）
-            // リソースカードの場合、同数のリソーストークンを支払う
-            if (previousCard.isResourceCard()) {
-                const cost = previousCard.situationEffect;
-                if (state.resources >= cost) {
-                    // リソースを支払う
-                    state.modifyResourcesMUTING(-cost);
-
-                    // リソース変更イベントを記録
-                    state.addEventMUTING({
-                        type: GameEventType.ResourceChanged,
-                        timestamp: Date.now(),
-                        data: {
-                            oldValue: state.resources + cost,
-                            newValue: state.resources,
-                            change: -cost,
-                            reason: `レーン移動コスト: ${previousCard.name}`
-                        }
-                    });
-
-                    // カードを完成品レーンに移動
-                    state.moveCardToCompletionLaneMUTING(previousCard);
-                } else {
-                    // リソースが足りない場合は捨て札に
-                    state.discardCardsMUTING([previousCard]);
-                }
-            } else {
-                // トラブルカードや中立カードはコストなしでレーンに移動
-                state.moveCardToCompletionLaneMUTING(previousCard);
-            }
-        } else if (pushOutOption === 'discard') {
-            // 押し出し（捨てる）
-            // トラブルカードの場合、絶対値と同数のリソーストークンを支払う
-            if (previousCard.isTroubleCard()) {
-                const cost = Math.abs(previousCard.situationEffect);
-                if (state.resources >= cost) {
-                    // リソースを支払う
-                    state.modifyResourcesMUTING(-cost);
-
-                    // リソース変更イベントを記録
-                    state.addEventMUTING({
-                        type: GameEventType.ResourceChanged,
-                        timestamp: Date.now(),
-                        data: {
-                            oldValue: state.resources + cost,
-                            newValue: state.resources,
-                            change: -cost,
-                            reason: `トラブル解消コスト: ${previousCard.name}`
-                        }
-                    });
-
-                    // カードを捨て札に加える
-                    state.discardCardsMUTING([previousCard]);
-                } else {
-                    // リソースが足りない場合はレーンに移動
-                    state.moveCardToCompletionLaneMUTING(previousCard);
-                }
-            } else {
-                // リソースカードや中立カードは捨て札に
-                state.discardCardsMUTING([previousCard]);
-            }
-        }
+        return this.handleRemovingCardFromWorkplace(currentAction, previousCard, newState);
     }
 
     private putCardFromHandToWorkplace(currentPlayer: Player, cardId: string, state: GameState, category: Category) {
@@ -233,6 +164,74 @@ export class PlaceCardRule implements GameRule {
             }
         });
         return {previousCard, newState: newState3};
+    }
+
+    private handleRemovingCardFromWorkplace(currentAction: Action, previousCard: Card, state: GameState): GameState {
+        // 押し出し処理の選択をアクションのペイロードから取得
+        const pushOutOption = currentAction.payload.pushOutOption as 'lane' | 'discard';
+
+        if (pushOutOption === 'lane') {
+            // 成果をまとめる（レーンへ移動）
+            // リソースカードの場合、同数のリソーストークンを支払う
+            if (!previousCard.isResourceCard()) {
+                // トラブルカードや中立カードはコストなしでレーンに移動
+                return state.moveCardToCompletionLane(previousCard);
+            }
+            const cost = previousCard.situationEffect;
+            if (state.resources < cost) {
+                // リソースが足りない場合はエラー
+                throw new Error('Insufficient resources to move card to lane')
+            }
+            // リソースを支払う
+            const stateAfterPayingResources = state.modifyResources(-cost);
+
+            // リソース変更イベントを記録
+            // カードを完成品レーンに移動
+            return stateAfterPayingResources.addEvent({
+                type: GameEventType.ResourceChanged,
+                timestamp: Date.now(),
+                data: {
+                    oldValue: state.resources + cost,
+                    newValue: state.resources,
+                    change: -cost,
+                    reason: `レーン移動コスト: ${previousCard.name}`
+                }
+            }).moveCardToCompletionLane(previousCard);
+        } else if (pushOutOption === 'discard') {
+            // 押し出し（捨てる）
+            // トラブルカードの場合、絶対値と同数のリソーストークンを支払う
+            if (previousCard.isTroubleCard()) {
+                const cost = Math.abs(previousCard.situationEffect);
+                if (state.resources >= cost) {
+                    // リソースを支払う
+                    state.modifyResourcesMUTING(-cost);
+
+                    // リソース変更イベントを記録
+                    state.addEventMUTING({
+                        type: GameEventType.ResourceChanged,
+                        timestamp: Date.now(),
+                        data: {
+                            oldValue: state.resources + cost,
+                            newValue: state.resources,
+                            change: -cost,
+                            reason: `トラブル解消コスト: ${previousCard.name}`
+                        }
+                    });
+
+                    // カードを捨て札に加える
+                    state.discardCardsMUTING([previousCard]);
+                } else {
+                    // リソースが足りない場合はレーンに移動
+                    state.moveCardToCompletionLaneMUTING(previousCard);
+                }
+            } else {
+                // リソースカードや中立カードは捨て札に
+                state.discardCardsMUTING([previousCard]);
+            }
+            return state;
+        } else {
+            throw new Error(`Invalid pushOutOption: ${pushOutOption}`);
+        }
     }
 
     private removeCardFromPlayersHand(state: GameState, currentPlayer: Player, cardId: string): {
