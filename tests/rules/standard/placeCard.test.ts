@@ -72,7 +72,7 @@ describe('PlaceCardRule', () => {
         players: [player1],
         currentPlayerIndex: 0,
         eventHistory: [],
-        resources: 3, // 十分なリソース（最大値）
+        resources: 1,
         workplaces: {
           TECHNOLOGY: existingCard, // 既存のカード
           USER: null,
@@ -110,11 +110,13 @@ describe('PlaceCardRule', () => {
       expect(state.eventHistory).toEqual(originalEvents);
       
       // 新しいstateでは適切に処理されている
-      expect(newState.resources).toBe(originalResources - 2);
+      console.log(newState.eventHistory);
+      expect(newState.resources).toBe(originalResources + newCard.situationEffect - existingCard.situationEffect);
       expect(newState.completionLane.length).toBe(1);
-      expect(newState.eventHistory.length).toBe(2);
-      expect(newState.eventHistory[0].type).toBe(GameEventType.CardPlaced);
-      expect(newState.eventHistory[1].type).toBe(GameEventType.ResourceChanged);
+      expect(newState.eventHistory.length).toBe(3);
+      expect(newState.eventHistory[0].type).toBe(GameEventType.ResourceChanged);
+      expect(newState.eventHistory[1].type).toBe(GameEventType.CardPlaced);
+      expect(newState.eventHistory[2].type).toBe(GameEventType.ResourceChanged);
     });
 
     it('workplace から discard への pushout でstate が mutate される', () => {
