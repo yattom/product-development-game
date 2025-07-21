@@ -2,11 +2,11 @@
 
 ## TODO
 
-- GameStateをイミュータブルにする
-  - ルールシステムをTDDでイミュータブル対応する
-    - 各ルールのテストを書く
-    - ルールがGameStateを返すよう修正
-    - 順序：~~StandardSetupRule~~ → ~~StandardTurnFlowRule~~ → ~~StandardActionsRule~~ → ~~StandardResourcesRule~~ → ~~StandardChaosRule~~ → ~~StandardVictoryRule~~
+- ~~GameStateをイミュータブルにする~~（完了）
+  - ~~ルールシステムをTDDでイミュータブル対応する~~（完了）
+    - ~~各ルールのテストを書く~~（完了）
+    - ~~ルールがGameStateを返すよう修正~~（完了）
+    - ~~順序：StandardSetupRule → StandardTurnFlowRule → StandardActionsRule → StandardResourcesRule → StandardChaosRule → StandardVictoryRule~~（完了）
   - その他のコンポーネントをイミュータブル対応する
     - PlayEffectsのテストを書く
     - PlayEffectsをイミュータブル対応
@@ -16,6 +16,9 @@
     - MUTINGメソッドを削除する
     - GameStateの各プロパティをreadonly化
   - 不変化の恩恵を活かす仕組み（undo/redoや履歴管理など）の検討
+- カスタム例外クラスの作成
+  - ルールが適用できない (事前条件がそろっていない場合) の例外を作る
+  - 現在、ルールが適用できないときの実装がおかしくないか見直す
 
 ## イミュータブル化のガイドライン
 

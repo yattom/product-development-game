@@ -115,5 +115,57 @@ describe('PlaceCardRule', () => {
       expect(newState.eventHistory.length).toBe(2);
     });
 
+    it('workplace から discard への pushout でstate が mutate される', () => {
+      // Given: 既にworkplaceにトラブルカードが配置されている状態
+      const existingTroubleCard = createTestCard({ situationEffect: -2 }); // トラブルカード
+      const newCard = createTestCard({ situationEffect: 1 });
+      const player1 = createTestPlayer(newCard);
+      
+      const state = createTestGameState({
+        players: [player1],
+        currentPlayerIndex: 0,
+        eventHistory: [],
+        resources: 3, // 十分なリソース
+        workplaces: {
+          TECHNOLOGY: existingTroubleCard, // 既存のトラブルカード
+          USER: null,
+          MANAGEMENT: null
+        },
+        discard: [] // 空の捨て札
+      });
+      
+      const context: GameContext = {
+        state,
+        currentAction: {
+          type: ActionType.PlaceCard,
+          payload: { 
+            cardId: newCard.id, 
+            category: Category.Technology,
+            pushOutOption: 'discard' // 捨て札に移動
+          }
+        },
+        currentCard: undefined,
+        metadata: {}
+      };
+      
+      // 元の状態を記録
+      const originalResources = state.resources;
+      const originalDiscardLength = state.discard.length;
+      const originalEvents = [...state.eventHistory];
+      
+      // When: ルールを適用
+      const rule = new PlaceCardRule();
+      const newState = rule.apply(context);
+      
+      // 元のstateは変更されない
+      expect(state.resources).toBe(originalResources);
+      expect(state.discard.length).toBe(originalDiscardLength);
+      expect(state.eventHistory).toEqual(originalEvents);
+      
+      // 新しいstateでは適切に処理されている
+      expect(newState.resources).toBe(originalResources - 2); // トラブル解消コスト支払い
+      expect(newState.discard.length).toBe(1); // カードが捨て札に追加
+      expect(newState.eventHistory.length).toBe(2); // カード配置 + リソース変更イベント
+    });
   });
 });
