@@ -134,13 +134,14 @@ export class PlaceCardRule implements GameRule {
             .modifyResources(removedCard.situationEffect);
 
         // リソース変更イベントを記録
+        let newState2 = newState;
         if (state.resources !== newState.resources) {
-            const actualChange = newState.resources - newState.resources;
-            state.addEventMUTING({
+            const actualChange = newState.resources - state.resources;
+            newState2 = newState.addEvent({
                 type: GameEventType.ResourceChanged,
                 timestamp: Date.now(),
                 data: {
-                    oldValue: newState.resources,
+                    oldValue: state.resources,
                     newValue: newState.resources,
                     change: actualChange,
                     reason: `カード配置: ${removedCard.name}`
@@ -149,7 +150,7 @@ export class PlaceCardRule implements GameRule {
         }
 
         // カード配置イベントを記録
-        const newState3 = newState.addEvent({
+        const newState3 = newState2.addEvent({
             type: GameEventType.CardPlaced,
             timestamp: Date.now(),
             data: {
