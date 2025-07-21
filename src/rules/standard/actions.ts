@@ -192,9 +192,9 @@ export class PlaceCardRule implements GameRule {
                 type: GameEventType.ResourceChanged,
                 timestamp: Date.now(),
                 data: {
-                    oldValue: state.resources + cost,
-                    newValue: state.resources,
-                    change: -cost,
+                    oldValue: state.resources,
+                    newValue: stateAfterPayingResources.resources,
+                    change: stateAfterPayingResources.resources - state.resources,
                     reason: `レーン移動コスト: ${previousCard.name}`
                 }
             }).moveCardToCompletionLane(previousCard);
