@@ -1,4 +1,4 @@
-import {PlayCardRule} from '../../../src/rules/standard/actions';
+import {PlayCardRule, DiscardCardRule} from '../../../src/rules/standard/actions';
 import {ActionType, GameContext} from '../../../src/rules/interfaces';
 import {createTestCard, createTestGameState, createTestPlayer} from '../../fixture/create_helper';
 
@@ -51,6 +51,66 @@ describe('PlayCardRule', () => {
       expect(newState.eventHistory.length).toBe(originalEventHistory.length + 1);
       expect(newState.eventHistory[newState.eventHistory.length - 1]).toMatchObject({
         type: 'CARD_PLAYED',
+        data: {
+          playerId: player1.id,
+          playerName: player1.name,
+          playerIndex: 0,
+          cardId: testCard.id,
+          cardName: testCard.name
+        }
+      });
+    });
+  });
+});
+
+describe('DiscardCardRule', () => {
+  describe('イミュータブル対応', () => {
+    it('apply()メソッドは新しいGameStateを返し、元の状態を変更しない', () => {
+      // Given: テスト用のゲーム状態とプレイヤーを作成
+      const testCard = createTestCard();
+      const player1 = createTestPlayer(testCard);
+      
+      const state = createTestGameState({
+        players: [player1],
+        currentPlayerIndex: 0,
+        eventHistory: [],
+        discard: []
+      });
+      
+      const context: GameContext = {
+        state,
+        currentAction: {
+          type: ActionType.DiscardCard,
+          payload: { cardId: testCard.id }
+        },
+        currentCard: testCard,
+        metadata: {}
+      };
+      
+      const originalEventHistory = [...state.eventHistory];
+      const originalDiscard = [...state.discard];
+      const originalPlayerHandSize = player1.getHandSize();
+      
+      // When: ルールを適用
+      const rule = new DiscardCardRule();
+      const newState = rule.apply(context);
+      
+      // Then: 新しいGameStateが返される
+      expect(newState).toBeDefined();
+      expect(newState).not.toBe(state);
+      
+      // Then: 元の状態は変更されない
+      expect(state.eventHistory).toEqual(originalEventHistory);
+      expect(state.discard).toEqual(originalDiscard);
+      expect(state.players[0].getHandSize()).toBe(originalPlayerHandSize);
+      
+      // Then: 新しい状態では適切に処理されている
+      expect(newState.players[0].getHandSize()).toBe(originalPlayerHandSize - 1);
+      expect(newState.discard.length).toBe(originalDiscard.length + 1);
+      expect(newState.discard).toContainEqual(testCard);
+      expect(newState.eventHistory.length).toBe(originalEventHistory.length + 1);
+      expect(newState.eventHistory[newState.eventHistory.length - 1]).toMatchObject({
+        type: 'CARD_DISCARDED',
         data: {
           playerId: player1.id,
           playerName: player1.name,

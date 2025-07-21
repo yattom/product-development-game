@@ -270,22 +270,28 @@ export class DiscardCardRule implements GameRule {
     /**
      * カード捨て処理を行う
      * @param context ゲームコンテキスト
+     * @returns 新しいGameState
      */
-    apply(context: GameContext): void {
+    apply(context: GameContext): GameState {
         const {state, currentCard, currentAction} = context;
-        if (!currentCard || !currentAction) return;
+        if (!currentCard || !currentAction) return state;
 
         const currentPlayer = state.players[state.currentPlayerIndex];
         const cardId = currentAction.payload.cardId as string;
 
         // プレイヤーの手札からカードを削除
-        currentPlayer.removeCardFromHandMUTING(cardId);
-
-        // カードを捨て札に加える
-        state.discardCardsMUTING([currentCard]);
+        const {newPlayer, removedCard} = currentPlayer.removeCardFromHand(cardId);
+        
+        // プレイヤー配列を更新
+        const updatedPlayers = [...state.players];
+        updatedPlayers[state.currentPlayerIndex] = newPlayer;
+        
+        // 新しいStateを作成してカードを捨て札に加える
+        const stateWithUpdatedPlayer = state.newState({players: updatedPlayers});
+        const stateWithDiscardedCard = stateWithUpdatedPlayer.discardCards([currentCard]);
 
         // カード捨てイベントを記録
-        state.addEventMUTING({
+        return stateWithDiscardedCard.addEvent({
             type: GameEventType.CardDiscarded,
             timestamp: Date.now(),
             data: {
