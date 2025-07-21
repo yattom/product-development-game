@@ -200,35 +200,31 @@ export class PlaceCardRule implements GameRule {
         } else if (pushOutOption === 'discard') {
             // 押し出し（捨てる）
             // トラブルカードの場合、絶対値と同数のリソーストークンを支払う
-            if (previousCard.isTroubleCard()) {
-                const cost = Math.abs(previousCard.situationEffect);
-                if (state.resources >= cost) {
-                    // リソースを支払う
-                    state.modifyResourcesMUTING(-cost);
-
-                    // リソース変更イベントを記録
-                    state.addEventMUTING({
-                        type: GameEventType.ResourceChanged,
-                        timestamp: Date.now(),
-                        data: {
-                            oldValue: state.resources + cost,
-                            newValue: state.resources,
-                            change: -cost,
-                            reason: `トラブル解消コスト: ${previousCard.name}`
-                        }
-                    });
-
-                    // カードを捨て札に加える
-                    state.discardCardsMUTING([previousCard]);
-                } else {
-                    // リソースが足りない場合はレーンに移動
-                    state.moveCardToCompletionLaneMUTING(previousCard);
-                }
-            } else {
+            if (!previousCard.isTroubleCard()) {
                 // リソースカードや中立カードは捨て札に
-                state.discardCardsMUTING([previousCard]);
+                return state.discardCards([previousCard]);
             }
-            return state;
+            
+            const cost = Math.abs(previousCard.situationEffect);
+            if (state.resources < cost) {
+                // リソースが足りない場合はエラー
+                throw new Error(`Insufficient resources to discard trouble card: required ${cost}, available ${state.resources}`);
+            }
+            
+            // リソースを支払う
+            const stateAfterPayingResources = state.modifyResources(-cost);
+            
+            // リソース変更イベントを記録してカードを捨て札に加える
+            return stateAfterPayingResources.addEvent({
+                type: GameEventType.ResourceChanged,
+                timestamp: Date.now(),
+                data: {
+                    oldValue: state.resources,
+                    newValue: stateAfterPayingResources.resources,
+                    change: -cost,
+                    reason: `トラブル解消コスト: ${previousCard.name}`
+                }
+            }).discardCards([previousCard]);
         } else {
             throw new Error(`Invalid pushOutOption: ${pushOutOption}`);
         }
