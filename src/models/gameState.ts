@@ -483,6 +483,7 @@ export class GameState {
    * @param value メタデータの値
    */
   setMetadataMUTING(key: string, value: any): void {
+
     this._metadata[key] = value;
   }
 
