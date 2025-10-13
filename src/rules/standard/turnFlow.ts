@@ -155,37 +155,47 @@ export class StandardDrawRule implements GameRule {
   }
 
   /**
-   * 手札を補充する
+   * 手札を補充する（イミュータブル版）
    * @param context ゲームコンテキスト
+   * @returns 新しいGameState
    */
-  apply(context: GameContext): void {
+  apply(context: GameContext): GameState {
     const { state } = context;
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    const currentHandSize = currentPlayer.getHandSize();
+    let currentState = state;
+    let currentPlayer = currentState.players[currentState.currentPlayerIndex];
 
-    // 手札が3枚になるまで補充
-    const cardsToDrawCount = 3 - currentHandSize;
-    if (cardsToDrawCount <= 0) {
-      return;
+    // 手札が3枚になるまで、1枚ずつドローして反映
+    while (currentPlayer.getHandSize() < 3) {
+      const { drawnCards, state: afterDrawState } = currentState.drawCards(1);
+      if (drawnCards.length === 0) {
+        // 山札・捨て札ともに尽きた
+        break;
+      }
+
+      const card = drawnCards[0];
+      const updatedPlayer = currentPlayer.addCardToHand(card);
+      const newPlayers = currentState.players.map((p, i) =>
+        i === currentState.currentPlayerIndex ? updatedPlayer : p
+      );
+
+      // プレイヤー差し替えとイベント追記
+      currentState = afterDrawState
+        .newState({ players: newPlayers })
+        .addEvent({
+          type: GameEventType.CardDrawn,
+          timestamp: Date.now(),
+          data: {
+            playerId: updatedPlayer.id,
+            playerName: updatedPlayer.name,
+            playerIndex: currentState.currentPlayerIndex,
+            cardId: card.id,
+            cardName: card.name
+          }
+        });
+
+      currentPlayer = updatedPlayer;
     }
 
-    const drawnCards = state.drawCardsMUTING(cardsToDrawCount);
-
-    // カードを引いたイベントを記録
-    drawnCards.forEach(card => {
-      currentPlayer.addCardToHandMUTING(card);
-
-      state.addEventMUTING({
-        type: GameEventType.CardDrawn,
-        timestamp: Date.now(),
-        data: {
-          playerId: currentPlayer.id,
-          playerName: currentPlayer.name,
-          playerIndex: state.currentPlayerIndex,
-          cardId: card.id,
-          cardName: card.name
-        }
-      });
-    });
+    return currentState;
   }
 }
