@@ -10,7 +10,6 @@ import {
 import { GameState } from '../models/gameState';
 import { RuleRegistry } from '../rules/registry';
 import { standardRuleSet, standardRules } from '../rules/standard';
-import { playEffectRules } from '../effects/playEffects';
 
 /**
  * ゲームエンジンクラス
@@ -55,10 +54,6 @@ export class GameEngine {
     // 標準ルールセットを登録
     this.ruleRegistry.registerRuleSet(standardRuleSet);
     
-    // プレイ効果ルールを登録
-    for (const [id, rule] of Object.entries(playEffectRules)) {
-      this.ruleRegistry.registerRule(rule);
-    }
   }
 
   /**
