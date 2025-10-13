@@ -110,7 +110,6 @@ describe('PlaceCardRule', () => {
       expect(state.eventHistory).toEqual(originalEvents);
       
       // 新しいstateでは適切に処理されている
-      console.log(newState.eventHistory);
       expect(newState.resources).toBe(originalResources + newCard.situationEffect - existingCard.situationEffect);
       expect(newState.completionLane.length).toBe(1);
       expect(newState.eventHistory.length).toBe(3);
