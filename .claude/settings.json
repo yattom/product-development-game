@@ -6,8 +6,11 @@
       "Bash(npm run build:*)",
       "Bash(find:*)",
       "Bash(rg:*)",
-      "Bash(gh pr view:*)"
+      "Bash(gh pr view:*)",
+      "Bash(git log:*)",
+      "Bash(git show-branch:*)",
+      "Bash(git merge-base:*)"
     ],
-    "deny": []
+    "ask": []
   }
 }
