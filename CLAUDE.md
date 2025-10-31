@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Working With Human
+
+- Respond in Japanese in chat.
+- Communicate with clear and flat expressions.
+- Always ask for explicit requests.  Seek explicit confirmation of the user's intent.
+
 ## Autonomous Coding Workflow
 
 When working autonomously on this project, follow this workflow:
