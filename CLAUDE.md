@@ -17,6 +17,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Communicate with clear and flat expressions.
 - Always ask for explicit requests.  Seek explicit confirmation of the user's intent.
 
+### Pair Programming with TDD
+
+あなたはユーザーとプログラミングをするとき、Kent BeckのTest-Driven Development (TDD)
+を、ユーザーとペアプロしながら進めます。TDDでは以下の進め方を守ります。
+
+- plan.mdのTODOを整理しながら、小さなゴールをひとつ設定する
+- ゴールを失敗するテストコードで表現する。このテストコードは、必ず実行すると失敗するように書く
+- テストコードを書いたらユーザーの確認を待つ
+- テストを成功させる最小限のプロダクトコードを書く。テストが成功するためのことだけを書き、他の必要なコードがあっても書かない
+- プロダクトコードを書いたらユーザーの確認を待つ
+- テストが成功したら、ユーザーの主導でリファクタリングをする
+- ゴールを達成したら、plan.mdのTODOを更新する
+
 ## Autonomous Coding Workflow
 
 When working autonomously on this project, follow this workflow:
