@@ -22,13 +22,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 あなたはユーザーとプログラミングをするとき、Kent BeckのTest-Driven Development (TDD)
 を、ユーザーとペアプロしながら進めます。TDDでは以下の進め方を守ります。
 
-- plan.mdのTODOを整理しながら、小さなゴールをひとつ設定する
+- docs/plan.mdのTODOを整理しながら、小さなゴールをひとつ設定する
 - ゴールを失敗するテストコードで表現する。このテストコードは、必ず実行すると失敗するように書く
 - テストコードを書いたらユーザーの確認を待つ
 - テストを成功させる最小限のプロダクトコードを書く。テストが成功するためのことだけを書き、他の必要なコードがあっても書かない
 - プロダクトコードを書いたらユーザーの確認を待つ
 - テストが成功したら、ユーザーの主導でリファクタリングをする
-- ゴールを達成したら、plan.mdのTODOを更新する
+- ゴールを達成したら、docs/plan.mdのTODOを更新する
 
 ## Autonomous Coding Workflow
 
@@ -67,8 +67,8 @@ When working autonomously on this project, follow this workflow:
    - Add edge case tests as you discover them
 
 3. **Before Marking Complete:**
-   - All tests must pass (unit + integration + e2e where applicable)
-   - Code must pass linting (backend: black, isort, flake8, mypy; frontend: eslint)
+   - All tests must pass
+   - Code must pass linting (eslint)
    - No console errors or warnings in development
    - Changes are committed with clear messages
 
@@ -80,8 +80,6 @@ Before considering any task complete, verify:
 - [ ] Code follows existing patterns and style
 - [ ] Linting passes with no errors
 - [ ] No breaking changes to existing functionality (or documented if intentional)
-- [ ] API changes reflected in both frontend and backend
-- [ ] Database schema changes include migration strategy
 - [ ] Documentation updated (inline comments, CLAUDE.md if patterns changed)
 - [ ] `docs/plan.md` updated (mark task complete, add discovered issues)
 
@@ -95,11 +93,10 @@ Before considering any task complete, verify:
 5. Never commit code with failing tests
 
 **When Unexpected Errors Occur:**
-1. Check service status (`docker-compose ps`)
-2. Review recent changes that might have caused the issue
-3. Check logs (backend: docker logs, frontend: browser console)
-4. Attempt to reproduce in isolation
-5. Revert changes if error is blocking and cause is unclear
+1. Review recent changes that might have caused the issue
+2. Check browser console for errors
+3. Attempt to reproduce in isolation
+4. Revert changes if error is blocking and cause is unclear
 
 ## Task Execution Protocol
 
@@ -118,8 +115,6 @@ Before considering any task complete, verify:
 **For Features:**
 - [ ] Functionality implemented and working
 - [ ] Unit tests cover new code (target: >80% coverage)
-- [ ] E2E tests cover user workflows (if user-facing)
-- [ ] Frontend and backend integrated (if applicable)
 - [ ] Error handling implemented
 - [ ] Edge cases handled
 - [ ] Documentation updated
@@ -142,10 +137,9 @@ Before considering any task complete, verify:
 
 **Must Pass Before Completion:**
 
-**Frontend:**
 ```bash
 npm run lint                    # ESLint
-npm test                        # Jest unit tests
+npm test                        # Unit tests
 npm run build                   # Production build succeeds
 ```
 
@@ -260,20 +254,14 @@ npm install
 **IMPORTANT: Always run tests before pushing code to the repository**
 
 ```bash
-# 1. Start services
-docker-compose up -d
+# 1. Run unit tests
+npm test
 
-# 2. Run backend tests
-cd backend && poetry run pytest
+# 2. Run linting
+npm run lint
 
-# 3. Run frontend unit tests
-cd ../frontend && npm test
-
-# 4. Run e2e tests
-npm run test:e2e
-
-# 5. Stop services
-cd .. && docker-compose down
+# 3. Build to verify no build errors
+npm run build
 
 # Only push code after confirming all tests are green ✅
 ```
